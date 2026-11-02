@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+:root {
+	color-scheme: light;
+	--bg: #efefef;
+	--surface: #ffffff;
+	--surface-2: #f6f6f6;
+	--ink: #222222;
+	--inv: #f2f2f2;
+	--line: rgb(0 0 0 / 0.09);
+	--faded: #e0e0e0;
+	--word: #8a8a8a;
+	--code: #4f4f4f;
+	--muted: #5c5c5c;
+	--subtle: #6b6b6b;
+	--accent-ink: #1b5fd0;
+	--live-ink: #137a43;
+}
+
+/* Dark follows the system unless the visitor picked a theme; the toggle sets data-theme. */
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--bg: #111111;
+	--surface: #1c1c1c;
+	--surface-2: #151515;
+	--ink: #f2f2f2;
+	--inv: #111111;
+	--line: rgb(255 255 255 / 0.08);
+	--faded: #1c1c1c;
+	--word: #727272;
+	--code: #b0b0b0;
+	--muted: #a8a8a8;
+	--subtle: #8f8f8f;
+	--accent-ink: #6aa3ff;
+	--live-ink: #3ccf7a;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		color-scheme: dark;
+		--bg: #111111;
+		--surface: #1c1c1c;
+		--surface-2: #151515;
+		--ink: #f2f2f2;
+		--inv: #111111;
+		--line: rgb(255 255 255 / 0.08);
+		--faded: #1c1c1c;
+		--word: #727272;
+		--code: #b0b0b0;
+		--muted: #a8a8a8;
+		--subtle: #8f8f8f;
+		--accent-ink: #6aa3ff;
+		--live-ink: #3ccf7a;
+	}
+}
+
+@theme inline {
+	--color-bg: var(--bg);
+	--color-surface: var(--surface);
+	--color-surface-2: var(--surface-2);
+	--color-ink: var(--ink);
+	--color-inv: var(--inv);
+	--color-line: var(--line);
+	--color-faded: var(--faded);
+	--color-word: var(--word);
+	--color-code: var(--code);
+	--color-muted: var(--muted);
+	--color-subtle: var(--subtle);
+	--color-accent-ink: var(--accent-ink);
+	--color-live-ink: var(--live-ink);
+	--color-tag-blue: #1e63d6;
+	--color-tag-claude: #b5542f;
+	--color-blue: #2d7cf6;
+	--color-claude: #d97757;
+	--color-live: #22a55b;
+	--font-sans: var(--font-inter);
+	--font-mono: var(--font-geist-mono);
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}
+
+body {
+	background: var(--bg);
+	color: var(--ink);
+}
+
+::selection {
+	background: rgb(45 124 246 / 0.25);
+}
+
+:focus-visible {
+	outline: 2px solid #2d7cf6;
+	outline-offset: 3px;
+	border-radius: 999px;
+}
+
+/* Logos painted in currentColor from shared files, so they follow the theme */
+.mark {
+	display: block;
+	aspect-ratio: 18 / 16;
+	background: currentColor;
+	mask: url("/mark.svg") center / contain no-repeat;
+}
+
+.grid-ink,
+.grid-blue {
+	position: absolute;
+	inset: 0;
+	background: currentColor;
+	mask: url("/logos/grid-ink.svg") center / contain no-repeat;
+}
+
+.grid-blue {
+	background: #2d7cf6;
+	mask-image: url("/logos/grid-blue.svg");
+}
+
