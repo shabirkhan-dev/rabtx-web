@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Github } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Github } from "@/components/brand-icons";
 import { links, profile, projects, skills, work } from "@/data/profile";
 import { getPosts } from "@/data/posts";
 import { Highlights } from "@/components/highlights";

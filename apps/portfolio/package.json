@@ -1,43 +1,31 @@
 {
-  "name": "portfolio-blog",
+  "name": "portfolio",
   "version": "0.2.0",
   "private": true,
-  "packageManager": "bun@1.3.10",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
-  },
-  "engines": {
-    "node": ">=20.9.0"
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "gray-matter": "^4.0.3",
-    "lucide-react": "^0.468.0",
-    "next": "16.2.9",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
+    "gray-matter": "catalog:",
+    "lucide-react": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-markdown": "catalog:",
+    "remark-gfm": "catalog:"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.9",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  },
-  "ignoreScripts": [
-    "sharp",
-    "unrs-resolver"
-  ],
-  "trustedDependencies": [
-    "sharp",
-    "unrs-resolver"
-  ]
+    "@tailwindcss/postcss": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-next": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
+  }
 }

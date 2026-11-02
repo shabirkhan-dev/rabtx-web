@@ -1,7 +1,8 @@
 "use client";
 
 import type { Ref } from "react";
-import { ArrowUpRight, Github, Globe, X } from "lucide-react";
+import { ArrowUpRight, Globe, X } from "lucide-react";
+import { Github } from "@/components/brand-icons";
 import type { Highlight } from "@/data/profile";
 import { ScreenshotCarousel } from "@/components/screenshot-carousel";
 

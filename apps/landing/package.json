@@ -1,41 +1,33 @@
 {
-  "name": "rabtx-landing",
+  "name": "landing",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@vercel/analytics": "^2.0.1",
-    "gray-matter": "^4.0.3",
-    "next": "16.4.0",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
+    "@vercel/analytics": "catalog:",
+    "gray-matter": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-markdown": "catalog:",
+    "remark-gfm": "catalog:"
   },
   "devDependencies": {
-    "@tailwindcss/turbopack": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.4.0",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "@tailwindcss/turbopack": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-next": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
   },
-  "packageManager": "bun@1.4.0",
-  "ignoreScripts": [
-    "sharp",
-    "unrs-resolver"
-  ],
-  "trustedDependencies": [
-    "sharp",
-    "unrs-resolver"
-  ],
   "browserslist": [
     "chrome 120",
     "edge 120",

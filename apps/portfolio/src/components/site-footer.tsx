@@ -1,4 +1,5 @@
-import { FileText, Github, Linkedin, Mail } from "lucide-react";
+import { FileText, Mail } from "lucide-react";
+import { Github, Linkedin } from "@/components/brand-icons";
 import { links, profile } from "@/data/profile";
 import { SectionTitle } from "@/components/page-column";
 import { iconButton } from "@/lib/icon-button";
