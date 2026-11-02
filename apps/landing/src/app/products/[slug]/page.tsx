@@ -118,7 +118,7 @@ export default async function ProductPage(props: PageProps<"/products/[slug]">) 
 					</header>
 
 					<div className="mt-10">
-						<ScreenshotCarousel images={product.screens} alt={product.name} />
+						<ScreenshotCarousel images={product.screens} alt={product.name} eager />
 					</div>
 
 					<section className="mt-14">

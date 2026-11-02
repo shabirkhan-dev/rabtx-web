@@ -18,7 +18,7 @@ export const profile = {
 };
 
 export type Highlight = {
-  id: "grid" | "starter" | "school-os";
+  id: "grid" | "synone" | "starter" | "school-os";
   name: string;
   label: string;
   year: string;
@@ -62,13 +62,33 @@ export const highlights: Highlight[] = [
     live: "https://grid.rabtx.dev",
   },
   {
+    id: "synone",
+    name: "Synone",
+    label: "Life app",
+    year: "2026",
+    isNew: true,
+    image: "/projects/synone-today.webp",
+    screens: ["/projects/synone-training.webp", "/projects/synone-insights.webp"],
+    about: [
+      "A mobile-first life app: plan the day, train, track money and meals, keep care routines and prayer times, and see all of it on one calendar",
+      "Offline first: everything is written on the phone and synced to your account in the background",
+    ],
+    facts: [
+      ["Role", "Author"],
+      ["Stack", "Expo, Hono, Cloudflare Workers, PostgreSQL"],
+      ["Status", "In development"],
+      ["License", "MIT / Apache-2.0"],
+    ],
+    github: "https://github.com/shabirkhan-dev/personal-os",
+  },
+  {
     id: "starter",
     name: "Starter",
     label: "SaaS monorepo",
     year: "2025",
     image: "/projects/starter.webp",
     about: [
-      "A production-ready SaaS monorepo on Bun and Turborepo: Next.js, Expo, NestJS, Fumadocs and FastAPI apps sharing one UI layer, one TypeScript config and one CI pipeline",
+      "A production-ready SaaS monorepo on Bun and Turborepo: Next.js, Expo, NestJS and Fumadocs apps sharing one UI layer, one TypeScript config and one CI pipeline",
     ],
     facts: [
       ["Role", "Author"],
@@ -115,6 +135,13 @@ export const projects: Project[] = [
     live: "https://grid.rabtx.dev",
   },
   {
+    name: "Synone",
+    description:
+      "Your day, training, money, food and faith on one calendar, offline first on your phone",
+    isNew: true,
+    github: "https://github.com/shabirkhan-dev/personal-os",
+  },
+  {
     name: "Starter",
     description:
       "A production monorepo with Next.js, Expo, NestJS and docs, ready on the first day",
@@ -127,73 +154,62 @@ export const projects: Project[] = [
       "School operations for many schools at once, with QR attendance and alerts to parents",
     github: "https://github.com/shabirkhan-dev/school-os",
   },
-  {
-    name: "Personal OS",
-    description:
-      "Routines, money, food and daily habits in one place, on web and phone",
-    github: "https://github.com/shabirkhan-dev/personal-os",
-  },
 ];
 
 export type Job = {
   company: string;
   role: string;
+  /** Shown next to the role when it is not a full-time job. */
+  type?: "Contract" | "Part-time";
   summary: string;
-  stack: string[];
   from: string;
   /** "Now" for a current role. */
   to: string;
 };
 
+/** Newest first, by start year. */
 export const work: Job[] = [
   {
     company: "Nexora AI",
-    role: "Senior frontend lead · Contract",
-    summary:
-      "Leading the frontend of Auspira, a contract-management platform for a UK client",
-    stack: ["Next.js", "React 19", "TanStack Query", "Ant Design"],
+    role: "Senior Frontend Lead",
+    type: "Contract",
+    summary: "Leading the frontend of Auspira, a contract-management platform for a UK client",
     from: "2026",
     to: "Now",
   },
   {
     company: "RabtX",
     role: "Founder",
-    summary: "Building Grid, an open-source workspace for people and AI coding agents",
-    stack: ["SolidJS", "Hono", "PostgreSQL", "Bun"],
+    summary: "Building Grid, Synone, School OS and Starter, each designed and shipped end to end",
     from: "2025",
     to: "Now",
   },
   {
     company: "Kansai Group",
-    role: "Frontend engineer, web and mobile · Part-time",
-    summary:
-      "Built the Expo app, the vehicle listing site and the admin panel for a used-car exporter in Osaka",
-    stack: ["Expo", "Next.js", "real-time inventory"],
+    role: "Frontend Engineer, Web and Mobile",
+    type: "Part-time",
+    summary: "Built the Expo app, the vehicle listing site and the admin panel for a used-car exporter in Osaka",
     from: "2024",
     to: "2026",
   },
   {
     company: "Excelorithm",
-    role: "Lead frontend engineer",
-    summary:
-      "Led the rebuild of BullseyeEngagement, an HR platform used by PepsiCo, Intel and Emory, with 35% faster page loads",
-    stack: ["Next.js", "React Query", "Tailwind CSS"],
+    role: "Lead Frontend Engineer",
+    summary: "Led the rebuild of BullseyeEngagement, an HR platform used by PepsiCo, Intel and Emory, with 35% faster page loads",
     from: "2023",
     to: "2025",
   },
   {
     company: "Revoxai",
-    role: "Senior full-stack developer",
-    summary: "Built an AI e-learning platform across Next.js, Node.js and Python services",
-    stack: ["Next.js", "Node.js", "Python"],
+    role: "Senior Full-Stack Developer",
+    summary: "Built an AI e-learning platform: the Next.js frontend and the Node.js APIs behind it",
     from: "2021",
     to: "2023",
   },
   {
     company: "Freelance",
-    role: "Software developer",
-    summary: "Web and mobile apps for clients on Fiverr and direct",
-    stack: ["Node.js", "Express", "PostgreSQL", "React"],
+    role: "Software Developer",
+    summary: "Web and mobile apps for clients, on Fiverr and direct",
     from: "2018",
     to: "2021",
   },

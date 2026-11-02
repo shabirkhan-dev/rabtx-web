@@ -11,10 +11,13 @@ const inter = Inter({
   display: "swap",
 });
 
+// Caveat and Plex Mono only set section titles and small labels, so they load after the page
+// instead of competing with the text font and the first screenshot.
 const caveat = Caveat({
   subsets: ["latin"],
   variable: "--font-caveat",
   display: "swap",
+  preload: false,
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -22,6 +25,7 @@ const plexMono = IBM_Plex_Mono({
   weight: "400",
   variable: "--font-plex-mono",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {

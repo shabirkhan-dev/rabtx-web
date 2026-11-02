@@ -71,6 +71,41 @@ export const PRODUCTS: Product[] = [
 		live: "https://grid.rabtx.dev",
 	},
 	{
+		name: "Synone",
+		slug: "synone",
+		updatedAt: "2026-11-03",
+		label: "Life app",
+		status: { label: "In development", tone: "blue" },
+		desc: "One app for the everyday parts of life: your day, training, money, food, care and faith on one calendar, offline first.",
+		stack: "Expo · Hono · Cloudflare Workers · PostgreSQL",
+		category: "LifestyleApplication",
+		about: [
+			"A mobile-first life app: plan the day, train, track money and meals, keep care routines and prayer times, and see all of it on one calendar.",
+			"Every area is a module you turn on when you need it. Each has its own home, insights and an ask bar that logs or answers in plain words.",
+		],
+		why: "Most people run their life across a notes app, a budget app, a workout app and a calendar that knows about none of them. Synone puts those parts in one place, on the phone, so a training session, a bill and an interview land on the same calendar, and logging any of them never waits on the network.",
+		features: [
+			["One calendar for everything", "Training sessions, interviews and follow-ups, bill due days and your own events, side by side."],
+			["Modules you choose", "Daily life, training, career, finance, food, care, faith, fashion and a wishlist, each switched on when you want it."],
+			["Training that progresses", "Twelve ready-made programs or your own, with rep ranges that move you to harder variations as you hit the top."],
+			["Log it in plain words", "Type “500 food” or “45 min gym” and the ask bar files it in the right module, with an on-device parser when offline."],
+			["Offline first", "Everything is written on the phone first and synced to your account in the background."],
+			["Private by default", "The server keeps only what it needs, and AI never sees data you have not chosen to share."],
+		],
+		built: [
+			"An Expo app with one SQLite record store on the phone, synced through a Hono API on Cloudflare Workers to PostgreSQL. AI runs inside the Worker with its key kept as a secret, and images go straight to R2.",
+			"Synone is open source under MIT or Apache-2.0 and in active development.",
+		],
+		posts: ["synone-a-life-app-that-works-offline", "architecture-for-the-agent-era"],
+		facts: [
+			["Stack", "Expo, Hono, Cloudflare Workers, PostgreSQL"],
+			["Status", "In development"],
+			["Started", "2026"],
+		],
+		screens: ["/projects/synone-today.webp", "/projects/synone-training.webp", "/projects/synone-insights.webp"],
+		github: "https://github.com/shabirkhan-dev/personal-os",
+	},
+	{
 		name: "School OS",
 		slug: "school-os",
 		updatedAt: "2026-10-12",
@@ -114,13 +149,12 @@ export const PRODUCTS: Product[] = [
 		stack: "Next.js · Expo · NestJS · Bun",
 		category: "DeveloperApplication",
 		about: [
-			"A production-ready SaaS monorepo on Bun and Turborepo: Next.js, Expo, NestJS, Fumadocs and FastAPI apps sharing one UI layer, one TypeScript config and one CI pipeline.",
+			"A production-ready SaaS monorepo on Bun and Turborepo: Next.js, Expo, NestJS and Fumadocs apps sharing one UI layer, one TypeScript config and one CI pipeline.",
 		],
 		why: "Every new product used to start with a week of setup: auth, a design system, CI, Docker and docs. Starter is that week done once, and every RabtX product begins from it.",
 		features: [
 			["Web, mobile and API in one repo", "Next.js, Expo and NestJS apps share types, one UI layer, one logger and one TypeScript config."],
 			["Docs from day one", "A Fumadocs site lives next to the code, so documentation ships with the change."],
-			["An optional AI service", "A FastAPI app for model calls sits behind the NestJS API and is never exposed directly."],
 			["Checks on every commit", "Lint, format, typecheck, tests and Conventional Commits run in pre-commit hooks and in CI."],
 			["Docker and a dev container", "Docker Compose brings up Postgres, the API and the web app, and the dev container has every toolchain ready."],
 		],
@@ -139,6 +173,13 @@ export const PRODUCTS: Product[] = [
 		live: "https://starter-two-henna.vercel.app",
 	},
 ];
+
+/** The fields the details dialog shows; the rest of a product stays on the server. */
+export type DialogProduct = Pick<Product, "name" | "slug" | "label" | "about" | "facts" | "screens" | "github" | "live">;
+
+export function toDialogProduct({ name, slug, label, about, facts, screens, github, live }: Product): DialogProduct {
+	return { name, slug, label, about, facts, screens, github, live };
+}
 
 export const STATUS_TONE = {
 	blue: "bg-blue/10 text-accent-ink",

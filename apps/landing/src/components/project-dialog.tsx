@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Ref } from "react";
 import { ProductLogo } from "./product-logo";
 import { ArrowIcon, GithubIcon } from "./icons";
-import type { Product } from "@/lib/products";
+import type { DialogProduct } from "@/lib/products";
 import { ScreenshotCarousel } from "./screenshot-carousel";
 
 const pill =
@@ -14,7 +14,7 @@ const pill =
  * A product's details, the same pattern as the portfolio: a centred dialog on desktop and a bottom
  * sheet on phones. Built on <dialog>, so Escape, focus trapping and the backdrop come for free.
  */
-export function ProjectDialog({ ref, product }: { ref: Ref<HTMLDialogElement>; product: Product | null }) {
+export function ProjectDialog({ ref, product }: { ref: Ref<HTMLDialogElement>; product: DialogProduct | null }) {
 	return (
 		<dialog
 			ref={ref}

@@ -6,8 +6,11 @@ import { useRef, useState } from "react";
 const arrow =
 	"absolute top-1/2 grid size-8 -translate-y-1/2 cursor-pointer place-items-center rounded-full border border-line bg-surface/85 text-ink backdrop-blur-md transition-opacity disabled:pointer-events-none disabled:opacity-0 max-sm:hidden";
 
-/** Product screens one at a time: swipe on touch, arrows with a mouse, dots for position. */
-export function ScreenshotCarousel({ images, alt }: { images: string[]; alt: string }) {
+/**
+ * Product screens one at a time: swipe on touch, arrows with a mouse, dots for position.
+ * `eager` loads the first screen at high priority, for pages where it is the largest paint.
+ */
+export function ScreenshotCarousel({ images, alt, eager = false }: { images: string[]; alt: string; eager?: boolean }) {
 	const track = useRef<HTMLDivElement>(null);
 	const [index, setIndex] = useState(0);
 	const many = images.length > 1;
@@ -36,6 +39,7 @@ export function ScreenshotCarousel({ images, alt }: { images: string[]; alt: str
 							width={1440}
 							height={900}
 							sizes="(min-width: 640px) 560px, 100vw"
+							{...(eager && i === 0 ? ({ loading: "eager", fetchPriority: "high" } as const) : {})}
 							className="aspect-[16/10] w-full shrink-0 snap-center object-cover object-left-top"
 						/>
 					))}

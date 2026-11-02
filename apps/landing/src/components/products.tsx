@@ -1,26 +1,19 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
-import { type Product, PRODUCTS, STATUS_TONE } from "@/lib/products";
+import { type Product, PRODUCTS, STATUS_TONE, toDialogProduct } from "@/lib/products";
 import { ArrowIcon, GithubIcon } from "./icons";
+import { ProductGrid } from "./product-grid";
 import { ProductLogo } from "./product-logo";
-import { ProjectDialog } from "./project-dialog";
 import { SectionHeader } from "./ui";
 
-function ProductCard({ p, onOpen }: { p: Product; onOpen: () => void }) {
+function ProductCard({ p }: { p: Product }) {
 	return (
 		<article className="group relative flex flex-col overflow-hidden rounded-[20px] border border-line bg-surface transition-colors hover:border-ink/20">
-			{/* The whole card links to the product page; a plain click opens the details dialog instead.
+			{/* The whole card links to the product page; ProductGrid turns a plain click into the details dialog.
 			    The GitHub and Live links sit above this link. */}
 			<Link
 				href={`/products/${p.slug}`}
-				onClick={(event) => {
-					if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-					event.preventDefault();
-					onOpen();
-				}}
+				data-product={p.slug}
 				aria-label={`${p.name} details`}
 				className="absolute inset-0 z-0 rounded-[20px]"
 			/>
@@ -31,7 +24,7 @@ function ProductCard({ p, onOpen }: { p: Product; onOpen: () => void }) {
 					alt=""
 					width={1440}
 					height={900}
-					sizes="(min-width: 1024px) 560px, 90vw"
+					sizes="(min-width: 1024px) 780px, 135vw"
 					className="absolute left-6 top-6 w-[150%] max-w-none rounded-tl-xl border-l border-t border-line transition-transform duration-300 ease-out group-hover:-translate-x-1 group-hover:-translate-y-1 motion-reduce:transition-none"
 				/>
 			</div>
@@ -89,26 +82,19 @@ function ProductCard({ p, onOpen }: { p: Product; onOpen: () => void }) {
 	);
 }
 
+/** The cards render on the server; only the dialog and its click handling run in the browser. */
 export function Products() {
-	const dialog = useRef<HTMLDialogElement>(null);
-	const [open, setOpen] = useState<Product | null>(null);
-
 	return (
 		<section id="products" className="scroll-mt-24 px-4 pt-20 sm:px-20">
 			<SectionHeader chip="Products" title="What we’ve built." />
-			<div className="mx-auto mt-[72px] grid max-w-[640px] gap-6 lg:max-w-[1280px] lg:grid-cols-3">
+			<ProductGrid
+				products={PRODUCTS.map(toDialogProduct)}
+				className="mx-auto mt-[72px] grid max-w-[640px] gap-6 lg:max-w-[1080px] lg:grid-cols-2"
+			>
 				{PRODUCTS.map((p) => (
-					<ProductCard
-						key={p.name}
-						p={p}
-						onOpen={() => {
-							setOpen(p);
-							dialog.current?.showModal();
-						}}
-					/>
+					<ProductCard key={p.slug} p={p} />
 				))}
-			</div>
-			<ProjectDialog ref={dialog} product={open} />
+			</ProductGrid>
 		</section>
 	);
 }

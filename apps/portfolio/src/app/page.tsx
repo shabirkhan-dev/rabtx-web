@@ -17,7 +17,7 @@ function Intro() {
     <header className="flex flex-col gap-7">
       <div className="flex items-center gap-3.5">
         <Image
-          src="/avatar.png"
+          src="/avatar.webp"
           alt={profile.name}
           width={56}
           height={56}
@@ -157,44 +157,33 @@ async function Writing() {
   );
 }
 
-const mono = "font-mono text-[11px] leading-4";
-
 function Work() {
   return (
     <section className="flex flex-col">
       <SectionTitle>Work</SectionTitle>
-      <div className="h-5" />
+      <div className="h-4" />
       <ol>
-        {work.map((job, i) => {
+        {work.map((job) => {
           const current = job.to === "Now";
-          const last = i === work.length - 1;
           return (
-            <li key={job.company} className="flex gap-3.5 md:gap-4">
-              <p className={`hidden w-14 shrink-0 pt-0.5 md:block ${mono} text-muted`}>
-                {job.from}
-                <br />
-                <span className={current ? "text-new" : "text-faint"}>{job.to}</span>
+            <li
+              key={job.company}
+              className="flex flex-col gap-1.5 border-t border-line py-4 text-sm leading-5 tracking-[-0.0064em] last:border-b md:flex-row md:gap-4"
+            >
+              <p className="flex items-center gap-1.5 self-start font-mono text-[11px] leading-5 text-faint md:w-[140px] md:shrink-0">
+                {job.from} – {current ? <span className="text-new">Now</span> : job.to}
+                {current ? <span className="size-1.5 rounded-full bg-new" aria-hidden="true" /> : null}
               </p>
-              <div className="flex w-[9px] shrink-0 flex-col items-center pt-[5px]" aria-hidden="true">
-                <span
-                  className={`size-[9px] shrink-0 rounded-full ${
-                    current
-                      ? "bg-new shadow-[0_0_0_4px_color-mix(in_oklab,var(--new)_25%,transparent)]"
-                      : "border-[1.5px] border-faint bg-background"
-                  }`}
-                />
-                {last ? null : <span className="w-px flex-1 bg-line" />}
-              </div>
-              <div className={`flex flex-1 flex-col gap-1 text-sm leading-5 tracking-[-0.0064em] ${last ? "" : "pb-7"}`}>
-                <div className="flex items-baseline gap-2">
-                  <p className="flex-1 font-medium text-foreground">{job.company}</p>
-                  <p className={`md:hidden ${mono} ${current ? "text-new" : "text-faint"}`}>
-                    {job.from}—{job.to}
-                  </p>
-                </div>
-                <p className="text-muted">{job.role}</p>
-                <p className="mt-0.5 text-muted">{job.summary}</p>
-                <p className={`mt-0.5 ${mono} text-faint`}>{job.stack.join(" · ")}</p>
+              <div className="flex flex-col gap-1">
+                <p>
+                  <span className="font-medium text-foreground">{job.company}</span>
+                  <span className="text-muted">
+                    {" · "}
+                    {job.role}
+                    {job.type ? `, ${job.type.toLowerCase()}` : ""}
+                  </span>
+                </p>
+                <p className="text-muted">{job.summary}</p>
               </div>
             </li>
           );

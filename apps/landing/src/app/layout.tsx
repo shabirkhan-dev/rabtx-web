@@ -10,9 +10,11 @@ const inter = Inter({
 	subsets: ["latin"],
 });
 
+// Only small labels use the mono face, so it loads after the page instead of competing with it.
 const geistMono = Geist_Mono({
 	variable: "--font-geist-mono",
 	subsets: ["latin"],
+	preload: false,
 });
 
 const TITLE = "RabtX — AI-native products, built full-stack";

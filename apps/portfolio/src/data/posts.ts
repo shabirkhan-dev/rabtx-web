@@ -16,11 +16,20 @@ export type Post = {
   thumbnail?: string;
 };
 
-/** Covers kept in public/writing for posts that have one; the rest get the plain tile. */
-const THUMBNAILS: Record<string, string> = {
-  "building-multi-tenant-admin-systems": "/writing/grid-board.png",
-  "frontend-performance-under-real-traffic": "/writing/starter-site.png",
-};
+/**
+ * Posts with a small cover in public/writing/{slug}.webp, cut from the rabtx.dev cover at 160x128.
+ * A post that is not listed gets the plain tile.
+ */
+const THUMBNAILS = new Set([
+  "architecture-for-the-agent-era",
+  "building-grid-with-the-agents-it-runs",
+  "building-multi-tenant-admin-systems",
+  "frontend-performance-under-real-traffic",
+  "make-shipping-boring-on-purpose",
+  "synone-a-life-app-that-works-offline",
+  "two-sites-one-bun-workspace",
+  "ui-ux-design-in-the-ai-era",
+]);
 
 function tag(item: string, name: string) {
   const match = item.match(new RegExp(`<${name}>([\\s\\S]*?)</${name}>`));
@@ -47,7 +56,7 @@ export function parseFeed(xml: string): Post[] {
       excerpt: tag(item, "description"),
       publishedAt: new Date(tag(item, "pubDate")).toISOString(),
       url,
-      thumbnail: THUMBNAILS[slug],
+      thumbnail: THUMBNAILS.has(slug) ? `/writing/${slug}.webp` : undefined,
     };
   });
 }

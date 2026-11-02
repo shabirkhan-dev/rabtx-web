@@ -89,7 +89,8 @@ export default async function PostPage(props: PageProps<"/writing/[slug]">) {
 							alt=""
 							width={1440}
 							height={900}
-							priority
+							loading="eager"
+							fetchPriority="high"
 							sizes="(min-width: 712px) 680px, 100vw"
 							className="mt-10 aspect-[16/10] w-full rounded-[20px] border border-line object-cover object-left-top"
 						/>

@@ -1,8 +1,8 @@
 import Image from "next/image";
 
-export type ProductName = "Grid" | "School OS" | "Starter";
+export type ProductName = "Grid" | "Synone" | "School OS" | "Starter";
 
-/** Real marks for Grid and School OS (the Grid mark is drawn from /logos/grid-ink.svg and grid-blue.svg); Starter has no logo yet, so it uses a simple layers glyph. */
+/** Real marks for Grid, Synone and School OS (the Grid mark is drawn from /logos/grid-ink.svg and grid-blue.svg); Starter has no logo yet, so it uses a simple layers glyph. */
 export function ProductLogo({ name, className = "size-5" }: { name: ProductName; className?: string }) {
 	if (name === "Grid") {
 		// Two masked layers so the grey part follows the page theme, not the OS setting.
@@ -13,10 +13,9 @@ export function ProductLogo({ name, className = "size-5" }: { name: ProductName;
 			</span>
 		);
 	}
-	if (name === "School OS") {
-		return (
-			<Image src="/logos/school-os-mark.png" alt="" width={64} height={64} className={`rounded-[22%] ${className}`} />
-		);
+	if (name === "Synone" || name === "School OS") {
+		const src = name === "Synone" ? "/logos/synone-mark.webp" : "/logos/school-os-mark.webp";
+		return <Image src={src} alt="" width={64} height={64} unoptimized className={`rounded-[22%] ${className}`} />;
 	}
 	return (
 		<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden className={className}>

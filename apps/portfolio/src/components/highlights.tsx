@@ -5,20 +5,35 @@ import { highlights, type Highlight } from "@/data/profile";
 import { SectionTitle } from "@/components/page-column";
 import { ProjectDialog } from "@/components/project-dialog";
 
-/** A product screenshot set into the card, cropped by the card's right and bottom edges. */
-function Shot({ src, alt }: { src: string; alt: string }) {
+/**
+ * A product screenshot set into the card, cropped by the card's right and bottom edges. Cards use
+ * the 800px copies in public/projects/cards; the dialog shows the full-size screens.
+ */
+function Shot({ src, alt, eager }: { src: string; alt: string; eager: boolean }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element -- pre-sized static asset
     <img
-      src={src}
+      src={src.replace("/projects/", "/projects/cards/")}
       alt={alt}
-      loading="lazy"
+      width={800}
+      height={500}
+      loading={eager ? "eager" : "lazy"}
+      fetchPriority={eager ? "high" : "auto"}
       className="absolute top-6 left-5 aspect-[16/10] w-[360px] max-w-none rounded-[10px] border border-line object-cover object-left-top md:top-7 md:left-6 md:w-[400px]"
     />
   );
 }
 
-function HighlightCard({ highlight, onOpen }: { highlight: Highlight; onOpen: () => void }) {
+function HighlightCard({
+  highlight,
+  first,
+  onOpen,
+}: {
+  highlight: Highlight;
+  /** The first card is the page's largest paint on most screens, so it loads straight away. */
+  first: boolean;
+  onOpen: () => void;
+}) {
   return (
     <button
       type="button"
@@ -27,7 +42,7 @@ function HighlightCard({ highlight, onOpen }: { highlight: Highlight; onOpen: ()
       className="group flex shrink-0 cursor-pointer snap-start flex-col gap-3 text-left"
     >
       <div className="relative grid h-[220px] w-[260px] place-items-center overflow-hidden rounded-2xl bg-surface transition-[filter] group-hover:brightness-110 md:h-[252px] md:w-[290px]">
-        <Shot src={highlight.image} alt={`${highlight.name} screenshot`} />
+        <Shot src={highlight.image} alt={`${highlight.name} screenshot`} eager={first} />
       </div>
       <div className="flex w-full gap-2">
         <div className="flex flex-1 flex-col gap-0.5">
@@ -58,8 +73,8 @@ export function Highlights() {
       </SectionTitle>
       {/* The row runs past the column to the right edge of the screen, as in the design. */}
       <div className="-mr-5 flex snap-x snap-mandatory gap-2.5 overflow-x-auto pr-5 [scrollbar-width:none] md:mr-[calc(275px-50vw)] md:pr-6 [&::-webkit-scrollbar]:hidden">
-        {highlights.map((h) => (
-          <HighlightCard key={h.id} highlight={h} onOpen={() => show(h)} />
+        {highlights.map((h, i) => (
+          <HighlightCard key={h.id} highlight={h} first={i === 0} onOpen={() => show(h)} />
         ))}
       </div>
       <ProjectDialog ref={dialogRef} project={open} />

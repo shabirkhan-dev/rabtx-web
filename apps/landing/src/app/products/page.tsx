@@ -74,7 +74,7 @@ export default function ProductsPage() {
 										alt=""
 										width={1440}
 										height={900}
-										sizes="300px"
+										sizes="600px"
 										className="absolute left-5 top-5 w-[200%] max-w-none rounded-tl-lg border-l border-t border-line"
 									/>
 								</div>
