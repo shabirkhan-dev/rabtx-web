@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant hover-capable (@media (hover: hover) and (pointer: fine));
+
+/* Colours from the Figma "Shabir" frames (dark). Light mirrors the same roles. */
+:root {
+  --background: #fafaf8;
+  --foreground: #161615;
+  --muted: #6f6e6a;
+  --faint: #8e8d89;
+  --surface: #efeeea;
+  --inset: #f7f6f3;
+  --raised: #e6e5e0;
+  --chip: #dcdad4;
+  --line: #e2e1dc;
+  --new: #1f9d55;
+}
+
+:root[data-theme="dark"] {
+  --background: #0d0d0c;
+  --foreground: #f0efeb;
+  --muted: #8e8d89;
+  --faint: #777570;
+  --surface: #191918;
+  --inset: #131312;
+  --raised: #222220;
+  --chip: #2e2d2b;
+  --line: #2a2927;
+  --new: #6fd99a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-surface: var(--surface);
+  --color-inset: var(--inset);
+  --color-raised: var(--raised);
+  --color-chip: var(--chip);
+  --color-line: var(--line);
+  --color-new: var(--new);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-hand: var(--font-caveat), cursive;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+html {
+  background: var(--background);
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* Keep the page still behind an open project dialog. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
