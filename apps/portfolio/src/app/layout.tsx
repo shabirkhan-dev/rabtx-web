@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Caveat, IBM_Plex_Mono, Inter } from "next/font/google";
 import { profile, siteUrl } from "@/data/profile";
 import { THEME_COLORS, ThemeScript } from "@/components/theme-script";
@@ -59,7 +60,10 @@ export default function RootLayout({
       <head>
         <ThemeScript />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }

@@ -32,6 +32,7 @@
       "name": "portfolio",
       "version": "0.2.0",
       "dependencies": {
+        "@vercel/analytics": "catalog:",
         "gray-matter": "catalog:",
         "lucide-react": "catalog:",
         "next": "catalog:",
