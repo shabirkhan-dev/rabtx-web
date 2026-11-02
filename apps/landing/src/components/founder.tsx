@@ -1,9 +1,10 @@
 import Image from "next/image";
+import { FOUNDER_LINKS } from "@/lib/site";
 import { SectionHeader } from "./ui";
 
 const LINKS = [
-	["LinkedIn", "https://www.linkedin.com/in/shabirkhan23"],
-	["GitHub", "https://github.com/shabirkhan-dev"],
+	["LinkedIn", FOUNDER_LINKS.linkedin],
+	["GitHub", FOUNDER_LINKS.github],
 ];
 
 const FACTS = [

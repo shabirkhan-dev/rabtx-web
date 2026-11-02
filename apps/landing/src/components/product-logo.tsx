@@ -2,8 +2,6 @@ import Image from "next/image";
 
 export type ProductName = "Grid" | "School OS" | "Starter";
 
-export const PRODUCTS: ProductName[] = ["Grid", "School OS", "Starter"];
-
 /** Real marks for Grid and School OS (the Grid mark is drawn from /logos/grid-ink.svg and grid-blue.svg); Starter has no logo yet, so it uses a simple layers glyph. */
 export function ProductLogo({ name, className = "size-5" }: { name: ProductName; className?: string }) {
 	if (name === "Grid") {

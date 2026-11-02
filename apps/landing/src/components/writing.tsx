@@ -1,43 +1,28 @@
 import Link from "next/link";
-import { formatPostDate, getPosts } from "@/lib/posts";
+import { getPosts } from "@/lib/posts";
+import { PostList } from "./post-list";
 import { SectionHeader } from "./ui";
 
-/** The latest posts as plain rows: date, title and one line, each opening the full post. */
+/** The latest posts on the home page, with a link to the full list. */
 export async function Writing() {
-	const posts = (await getPosts()).slice(0, 3);
+	const posts = await getPosts();
 	return (
-		<section id="writing" className="scroll-mt-24 px-4 pt-28 sm:px-20">
+		<section id="writing" className="scroll-mt-24 px-4 pb-24 pt-28 sm:px-20 sm:pb-28">
 			<SectionHeader chip="Writing" title="Notes from building." />
-			<ul className="mx-auto mt-16 max-w-[880px] border-t border-line">
-				{posts.map((post) => (
-					<li key={post.slug} className="border-b border-line">
-						<Link
-							href={`/writing/${post.slug}`}
-							className="group grid gap-2 py-7 sm:grid-cols-[140px_1fr_24px] sm:items-baseline sm:gap-8"
-						>
-							<time dateTime={post.publishedAt} className="font-mono text-xs text-subtle">
-								{formatPostDate(post.publishedAt)}
-							</time>
-							<span>
-								<span className="block text-xl font-semibold tracking-[-0.03em] transition-colors group-hover:text-accent-ink">
-									{post.title}
-								</span>
-								<span className="mt-1.5 block text-[15px] leading-[23px] text-muted">{post.excerpt}</span>
-							</span>
-							<svg
-								viewBox="0 0 16 16"
-								aria-hidden
-								className="hidden size-4 text-subtle transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 sm:block"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="1.5"
-							>
-								<path strokeLinecap="round" strokeLinejoin="round" d="M5 11L11 5M6 5h5v5" />
-							</svg>
-						</Link>
-					</li>
-				))}
-			</ul>
+			<div className="mx-auto mt-16 max-w-[880px]">
+				<PostList posts={posts.slice(0, 3)} />
+				<div className="mt-10 flex justify-center">
+					<Link
+						href="/writing"
+						className="inline-flex h-[42px] items-center gap-2 rounded-full bg-surface px-5 text-sm font-semibold transition-opacity hover:opacity-80"
+					>
+						See all writing
+						<svg viewBox="0 0 16 16" aria-hidden className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+							<path strokeLinecap="round" strokeLinejoin="round" d="M3.5 8h9M9 4.5L12.5 8 9 11.5" />
+						</svg>
+					</Link>
+				</div>
+			</div>
 		</section>
 	);
 }

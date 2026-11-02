@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { LogoTile, Mark, Wordmark } from "./logo";
+import { GITHUB_URL, LINKEDIN_URL } from "@/lib/site";
 import { Pill } from "./ui";
 
 export const EMAIL = "mailto:shabir@rabtx.dev";
 
 const LINKS = [
-	["Products", "/#products"],
+	["Products", "/products"],
 	["How we work", "/#how"],
-	["Writing", "/#writing"],
+	["Writing", "/writing"],
 	["About", "/#about"],
-	["LinkedIn", "https://www.linkedin.com/company/rabtx/"],
-	["GitHub", "https://github.com/shabirkhan-dev"],
+	["LinkedIn", LINKEDIN_URL],
+	["GitHub", GITHUB_URL],
 	["Email", EMAIL],
 ];
 
@@ -26,7 +27,7 @@ export function Footer() {
 				</h2>
 				<p className="mt-[18px] text-[17px] leading-6 text-muted">Tell us what you&rsquo;re building.</p>
 				<div className="mt-[38px] flex flex-wrap justify-center gap-1.5">
-					<Pill href={EMAIL}>Start a project</Pill>
+					<Pill href="/contact">Start a project</Pill>
 					<Pill href="/#products" variant="secondary">
 						See our products
 					</Pill>

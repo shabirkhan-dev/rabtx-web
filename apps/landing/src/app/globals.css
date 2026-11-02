@@ -96,7 +96,8 @@ body {
 	background: rgb(45 124 246 / 0.25);
 }
 
-:focus-visible {
+/* Form fields keep their own shape and draw their own focus (contact form) */
+:focus-visible:not(input, select, textarea) {
 	outline: 2px solid #2d7cf6;
 	outline-offset: 3px;
 	border-radius: 999px;

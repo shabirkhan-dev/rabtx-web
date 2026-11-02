@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import type { Ref } from "react";
 import { ProductLogo } from "./product-logo";
 import { ArrowIcon, GithubIcon } from "./icons";
-import type { Product } from "./products";
+import type { Product } from "@/lib/products";
 import { ScreenshotCarousel } from "./screenshot-carousel";
 
 const pill =
@@ -68,23 +69,25 @@ export function ProjectDialog({ ref, product }: { ref: Ref<HTMLDialogElement>; p
 							))}
 						</dl>
 
-						{(product.github || product.live) && (
-							<div className="flex gap-2">
-								{product.github && (
-									<a href={product.github} target="_blank" rel="noreferrer" className={`${pill} bg-ink text-inv`}>
-										<GithubIcon />
-										View on GitHub
-										<ArrowIcon />
-									</a>
-								)}
-								{product.live && (
-									<a href={product.live} target="_blank" rel="noreferrer" className={`${pill} border border-line`}>
-										Live site
-										<ArrowIcon />
-									</a>
-								)}
-							</div>
-						)}
+						<div className="flex flex-wrap gap-2">
+							{product.github && (
+								<a href={product.github} target="_blank" rel="noreferrer" className={`${pill} bg-ink text-inv`}>
+									<GithubIcon />
+									View on GitHub
+									<ArrowIcon />
+								</a>
+							)}
+							{product.live && (
+								<a href={product.live} target="_blank" rel="noreferrer" className={`${pill} border border-line`}>
+									Live site
+									<ArrowIcon />
+								</a>
+							)}
+							<Link href={`/products/${product.slug}`} className={`${pill} border border-line`}>
+								{product.name} page
+								<ArrowIcon />
+							</Link>
+						</div>
 					</div>
 				</div>
 			)}

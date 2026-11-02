@@ -20,6 +20,7 @@ bun run start
 
 ## Layout
 
-- `src/app` — layout, global tokens (`globals.css`) and the page
+- `src/app` — layout, global tokens (`globals.css`), the home page, `products/[slug]` and `writing/[slug]` pages, `sitemap` and `robots`
+- `src/lib` — `products.ts` (product data for the cards, dialogs, product pages and sitemap; bump a product's `updatedAt` when its page changes) and `posts.ts`
 - `src/components` — one file per section: `hero`, `every-layer`, `products`, `engineering`, `quickstart`, `footer`, plus `logo`, `agent-logos` and `ui`
 - `public/shots` — product screenshots exported from Figma

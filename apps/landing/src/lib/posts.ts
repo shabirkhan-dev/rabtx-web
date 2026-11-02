@@ -12,6 +12,8 @@ export type Post = {
 	standfirst: string;
 	publishedAt: string;
 	readingTime: string;
+	/** A 1440x900 screenshot in public/writing, shown in lists, on the post and in its share image. */
+	cover?: string;
 	body: string;
 };
 
@@ -20,8 +22,8 @@ type Frontmatter = {
 	slug?: string;
 	excerpt?: string;
 	standfirst?: string;
-	order?: number;
 	publishedAt?: string | Date;
+	cover?: string;
 };
 
 function readingTime(markdown: string) {
@@ -41,12 +43,13 @@ function toPost(filename: string, raw: string) {
 		standfirst: fm.standfirst ?? fm.excerpt ?? "",
 		publishedAt: (fm.publishedAt ? new Date(fm.publishedAt) : new Date(0)).toISOString(),
 		readingTime: readingTime(body),
+		cover: fm.cover,
 		body,
 	};
-	return { post, order: fm.order ?? Number.MAX_SAFE_INTEGER };
+	return post;
 }
 
-/** Posts in their frontmatter `order`, then newest first. They are files in the repo, so cache them for good. */
+/** Posts newest first. They are files in the repo, so cache them for good. */
 export async function getPosts(): Promise<Post[]> {
 	"use cache";
 	cacheLife("max");
@@ -54,9 +57,7 @@ export async function getPosts(): Promise<Post[]> {
 	const entries = await Promise.all(
 		files.map(async (f) => toPost(f, await fs.readFile(path.join(CONTENT_DIR, f), "utf8"))),
 	);
-	return entries
-		.sort((a, b) => a.order - b.order || b.post.publishedAt.localeCompare(a.post.publishedAt))
-		.map((e) => e.post);
+	return entries.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }
 
 export async function getPost(slug: string) {

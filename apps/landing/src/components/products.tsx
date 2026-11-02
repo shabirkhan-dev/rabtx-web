@@ -1,101 +1,28 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRef, useState } from "react";
+import { type Product, PRODUCTS, STATUS_TONE } from "@/lib/products";
 import { ArrowIcon, GithubIcon } from "./icons";
-import { type ProductName, ProductLogo } from "./product-logo";
+import { ProductLogo } from "./product-logo";
 import { ProjectDialog } from "./project-dialog";
 import { SectionHeader } from "./ui";
-
-export type Product = {
-	name: ProductName;
-	label: string;
-	status: { label: string; tone: "blue" | "green" };
-	desc: string;
-	stack: string;
-	about: string[];
-	facts: [string, string][];
-	screens: string[];
-	github?: string;
-	live?: string;
-};
-
-const PRODUCTS: Product[] = [
-	{
-		name: "Grid",
-		label: "Agent workspace",
-		status: { label: "Private beta", tone: "blue" },
-		desc: "A workspace where AI agents take tasks, work in their own environment and open pull requests.",
-		stack: "SolidJS · Hono · Bun · PostgreSQL",
-		about: [
-			"A self-hosted workspace where people and AI coding agents share one project board, live agent threads, a file editor, terminals and pull request checks, from desktop or phone.",
-			"Works with Claude Code, Codex, opencode and any ACP agent.",
-		],
-		facts: [
-			["Stack", "SolidJS, Hono, PostgreSQL, Bun"],
-			["Status", "Private beta"],
-			["Started", "2025"],
-		],
-		screens: [
-			"/projects/grid-board.webp",
-			"/projects/grid-thread.webp",
-			"/projects/grid-home.webp",
-			"/projects/grid-pr.webp",
-			"/projects/grid-ship.webp",
-		],
-	},
-	{
-		name: "School OS",
-		label: "School platform",
-		status: { label: "Open source", tone: "green" },
-		desc: "Attendance, homework, guardians and WhatsApp messages for schools. Each school gets its own tenant.",
-		stack: "Next.js · NestJS · Expo · PostgreSQL",
-		about: [
-			"A multi-tenant school platform: a teacher scans a student's QR code at the gate, the parent gets a WhatsApp alert, and the principal's dashboard updates.",
-			"Students, guardians, staff, attendance, homework and assessments are built; parent alerts are next.",
-		],
-		facts: [
-			["Stack", "Next.js, Expo, NestJS, PostgreSQL"],
-			["Status", "In development"],
-			["Started", "2025"],
-		],
-		screens: ["/projects/school-os.webp", "/projects/school-os-students.webp"],
-		github: "https://github.com/shabirkhan-dev/school-os",
-	},
-	{
-		name: "Starter",
-		label: "SaaS monorepo",
-		status: { label: "Open source", tone: "green" },
-		desc: "The monorepo every RabtX product starts from: web, mobile, API and docs with one UI layer and one CI pipeline.",
-		stack: "Next.js · Expo · NestJS · Bun",
-		about: [
-			"A production-ready SaaS monorepo on Bun and Turborepo: Next.js, Expo, NestJS, Fumadocs and FastAPI apps sharing one UI layer, one TypeScript config and one CI pipeline.",
-		],
-		facts: [
-			["Stack", "Next.js, Expo, NestJS, Bun, Turborepo"],
-			["License", "MIT / Apache-2.0"],
-			["Started", "2025"],
-		],
-		screens: ["/projects/starter.webp"],
-		github: "https://github.com/shabirkhan-dev/starter",
-		live: "https://starter-two-henna.vercel.app",
-	},
-];
-
-const TONE = {
-	blue: "bg-blue/10 text-accent-ink",
-	green: "bg-live/10 text-live-ink",
-};
 
 function ProductCard({ p, onOpen }: { p: Product; onOpen: () => void }) {
 	return (
 		<article className="group relative flex flex-col overflow-hidden rounded-[20px] border border-line bg-surface transition-colors hover:border-ink/20">
-			{/* The whole card opens the details; the GitHub and Live links sit above this button. */}
-			<button
-				type="button"
-				onClick={onOpen}
-				aria-label={`Open ${p.name} details`}
-				className="absolute inset-0 z-0 cursor-pointer rounded-[20px]"
+			{/* The whole card links to the product page; a plain click opens the details dialog instead.
+			    The GitHub and Live links sit above this link. */}
+			<Link
+				href={`/products/${p.slug}`}
+				onClick={(event) => {
+					if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+					event.preventDefault();
+					onOpen();
+				}}
+				aria-label={`${p.name} details`}
+				className="absolute inset-0 z-0 rounded-[20px]"
 			/>
 			{/* screenshot peeks in from the top-left of its own frame, so text can never run into it */}
 			<div className="pointer-events-none relative aspect-[16/10] overflow-hidden border-b border-line bg-surface-2">
@@ -140,7 +67,7 @@ function ProductCard({ p, onOpen }: { p: Product; onOpen: () => void }) {
 					</div>
 				</div>
 				<span
-					className={`mt-3 inline-flex w-fit items-center gap-1.5 rounded-full py-1 pl-2 pr-2.5 text-xs font-medium ${TONE[p.status.tone]}`}
+					className={`mt-3 inline-flex w-fit items-center gap-1.5 rounded-full py-1 pl-2 pr-2.5 text-xs font-medium ${STATUS_TONE[p.status.tone]}`}
 				>
 					<span className="size-1.5 rounded-full bg-current" />
 					{p.status.label}

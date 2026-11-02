@@ -3,9 +3,8 @@ title: "Building multi-tenant admin systems"
 slug: building-multi-tenant-admin-systems
 excerpt: "Tenancy models, permissions and data isolation when one codebase serves many customers"
 standfirst: "Multi-tenant is not a database flag. It is a product architecture that either protects customers or slowly mixes them together"
-order: 1
 publishedAt: 2026-07-02
-thumbnail: /writing/grid-board.png
+cover: /writing/building-multi-tenant-admin-systems.jpg
 ---
 
 ::lead During testing, I caught a tenant-scoping mistake that allowed one school’s records to appear in another tenant’s report preview. It was fixed before release and became the reason I now make tenant context explicit and testable at every data boundary. This essay is the checklist that came out of that work.

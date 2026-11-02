@@ -3,9 +3,8 @@ title: "Frontend performance under real traffic"
 slug: frontend-performance-under-real-traffic
 excerpt: "Making React and Next.js feel fast on messy networks and mid-range phones"
 standfirst: "Lab scores are useful. Real users on mid-range phones and hotel Wi‑Fi are the exam."
-order: 2
 publishedAt: 2026-07-10
-thumbnail: /writing/starter-site.png
+cover: /writing/frontend-performance-under-real-traffic.jpg
 ---
 
 ::lead I have watched teams celebrate a green Lighthouse score while support tickets said the admin “felt laggy.” Both can be true. Performance work that only chases lab metrics will miss the product moments that actually hurt: first useful paint of a dashboard, sorting a 10k-row table, submitting a form on a bad connection.
