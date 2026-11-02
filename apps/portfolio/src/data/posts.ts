@@ -1,86 +1,65 @@
 import "server-only";
 
-import { cache } from "react";
-import fs from "node:fs/promises";
-import path from "node:path";
-import matter from "gray-matter";
-
-const CONTENT_DIR = path.join(process.cwd(), "content", "blog");
+/**
+ * Posts are written once, on rabtx.dev, and this site lists them from its RSS feed. Each entry
+ * links to the post there, so search engines see one original instead of two copies.
+ * POSTS_FEED_URL points it at another feed, such as a local rabtx-landing server.
+ */
+export const FEED_URL = process.env.POSTS_FEED_URL ?? "https://rabtx.dev/writing/feed.xml";
 
 export type Post = {
   slug: string;
   title: string;
   excerpt: string;
-  standfirst: string;
   publishedAt: string;
-  readingTime: string;
-  thumbnail?: string;
-  body: string;
-};
-
-type Frontmatter = {
-  title?: string;
-  slug?: string;
-  excerpt?: string;
-  standfirst?: string;
-  order?: number;
-  publishedAt?: string | Date;
+  url: string;
   thumbnail?: string;
 };
 
-function readingTime(markdown: string) {
-  const words = markdown
-    .replace(/```[\s\S]*?```/g, " ")
-    .split(/\s+/)
-    .filter(Boolean).length;
-  return `${Math.max(1, Math.round(words / 200))} min read`;
+/** Covers kept in public/writing for posts that have one; the rest get the plain tile. */
+const THUMBNAILS: Record<string, string> = {
+  "building-multi-tenant-admin-systems": "/writing/grid-board.png",
+  "frontend-performance-under-real-traffic": "/writing/starter-site.png",
+};
+
+function tag(item: string, name: string) {
+  const match = item.match(new RegExp(`<${name}>([\\s\\S]*?)</${name}>`));
+  return match ? unescape(match[1].trim()) : "";
 }
 
-function toPost(filename: string, raw: string) {
-  const { data, content } = matter(raw);
-  const fm = data as Frontmatter;
-  const body = content.trim();
-  if (!fm.title || !body) {
-    throw new Error(`Post ${filename} needs a title and a body`);
-  }
-  const published = fm.publishedAt ? new Date(fm.publishedAt) : new Date(0);
-  const post: Post = {
-    slug: fm.slug ?? filename.replace(/\.md$/, ""),
-    title: fm.title,
-    excerpt: fm.excerpt ?? "",
-    standfirst: fm.standfirst ?? fm.excerpt ?? "",
-    publishedAt: published.toISOString(),
-    readingTime: readingTime(body),
-    thumbnail: fm.thumbnail,
-    body,
-  };
-  return { post, order: fm.order ?? Number.MAX_SAFE_INTEGER };
+function unescape(text: string) {
+  return text
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&");
 }
 
-/** Posts in the order their frontmatter `order` sets, then newest first. */
-export const getPosts = cache(async (): Promise<Post[]> => {
-  const files = (await fs.readdir(CONTENT_DIR)).filter((f) => f.endsWith(".md"));
-  const entries = await Promise.all(
-    files.map(async (f) => toPost(f, await fs.readFile(path.join(CONTENT_DIR, f), "utf8"))),
-  );
-  return entries
-    .sort(
-      (a, b) =>
-        a.order - b.order ||
-        b.post.publishedAt.localeCompare(a.post.publishedAt),
-    )
-    .map((e) => e.post);
-});
-
-export async function getPost(slug: string) {
-  return (await getPosts()).find((p) => p.slug === slug) ?? null;
-}
-
-export function formatPostDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
+/** Reads the feed's items. Exported for tests; the feed is our own, so a small parser is enough. */
+export function parseFeed(xml: string): Post[] {
+  return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].map(([, item]) => {
+    const url = tag(item, "link");
+    const slug = url.split("/").filter(Boolean).pop() ?? url;
+    return {
+      slug,
+      title: tag(item, "title"),
+      excerpt: tag(item, "description"),
+      publishedAt: new Date(tag(item, "pubDate")).toISOString(),
+      url,
+      thumbnail: THUMBNAILS[slug],
+    };
   });
+}
+
+/** Newest first, refreshed daily. An unreachable feed hides the section rather than failing the build. */
+export async function getPosts(): Promise<Post[]> {
+  try {
+    const res = await fetch(FEED_URL, { next: { revalidate: 86400 } });
+    if (!res.ok) throw new Error(`feed returned ${res.status}`);
+    return parseFeed(await res.text());
+  } catch (error) {
+    console.error(`Could not read ${FEED_URL}:`, error);
+    return [];
+  }
 }

@@ -1,8 +1,8 @@
 # Portfolio Blog
 
 A portfolio and blog built with Next.js App Router, TypeScript and Tailwind CSS,
-with the design from the "Portfolio" page of the Rabtx Figma file. Blog posts are static
-Markdown files under `content/blog/`; profile, projects and work live in `src/data/profile.ts`.
+with the design from the "Portfolio" page of the Rabtx Figma file. Profile, projects and work
+live in `src/data/profile.ts`. Posts are written on rabtx.dev; this site lists them from its RSS feed.
 
 ## Getting Started
 
@@ -34,29 +34,14 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Content
 
-- Blog posts: Markdown files in `content/blog/*.md`, loaded by `src/data/posts.server.ts`.
-- Blog types + Markdown helpers (reading time, TOC, Listen text): `src/data/posts.ts`.
-- Everything else (profile, projects, testimonials, nav): `src/data/site.ts`.
-
-### Adding a post
-
-Create `content/blog/your-slug.md`:
-
-```md
----
-title: "Your title"
-slug: your-slug
-category: Engineering
-excerpt: "Short card blurb."
-summary: "Slightly longer summary."
-standfirst: "Optional opening line."
-featured: false
-publishedAt: 2026-07-13
-takeaways:
-  - "Optional bullet"
----
-
-::lead Opening paragraph...
+- Profile, projects and work: `src/data/profile.ts`.
+- Writing: posts live in the rabtx-landing repo (`content/writing/*.md`) and are published at
+  rabtx.dev/writing. This site reads https://rabtx.dev/writing/feed.xml once a day
+  (`src/data/posts.ts`) and links each post there, so there is one original for search engines.
+  Old `/blog/...` URLs redirect permanently to the same post on rabtx.dev.
+- To add a post, add it to rabtx-landing. It appears here within a day. To show a cover image,
+  put it in `public/writing/` and add its slug to `THUMBNAILS` in `src/data/posts.ts`.
+- `POSTS_FEED_URL` points the list at another feed, such as a local rabtx-landing server.
 
 ## Section
 
@@ -80,11 +65,10 @@ Set `draft: true` (or `status: draft`) to keep a post out of the published list.
 
 ## Project Structure
 
-- `content/blog` — static Markdown essays
-- `src/app` — App Router pages (`/`, `/blog`, `/blog/[slug]`, etc.)
-- `src/components` — layout, UI, and blog components
+- `src/app` — App Router pages; `/blog/...` redirects to rabtx.dev in `next.config.ts`
+- `src/components` — layout and UI components
 - `src/data/site.ts` — static profile, projects, testimonials, nav
-- `src/data/posts.ts` — client-safe blog types + Markdown helpers
+- `src/data/posts.ts` — reads the rabtx.dev writing feed
 - `src/data/posts.server.ts` — filesystem post loader
 
 ## Useful Commands

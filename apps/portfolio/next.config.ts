@@ -29,6 +29,13 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // The few images are pre-sized in public/, so they are served as they are.
   images: { unoptimized: true },
+  // Posts moved to rabtx.dev; old links keep working and pass their search ranking along.
+  async redirects() {
+    return [
+      { source: "/blog", destination: "https://rabtx.dev/writing", permanent: true },
+      { source: "/blog/:slug", destination: "https://rabtx.dev/writing/:slug", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

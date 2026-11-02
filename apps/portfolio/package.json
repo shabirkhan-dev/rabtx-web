@@ -11,13 +11,10 @@
   },
   "dependencies": {
     "@vercel/analytics": "catalog:",
-    "gray-matter": "catalog:",
     "lucide-react": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:",
-    "react-markdown": "catalog:",
-    "remark-gfm": "catalog:"
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "catalog:",

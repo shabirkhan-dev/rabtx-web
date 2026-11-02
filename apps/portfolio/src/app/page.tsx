@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Github } from "@/components/brand-icons";
 import { links, profile, projects, skills, work } from "@/data/profile";
@@ -119,14 +118,15 @@ function Projects() {
 
 async function Writing() {
   const posts = await getPosts();
+  if (posts.length === 0) return null;
   return (
     <section id="writing" className="flex scroll-mt-10 flex-col">
       <SectionTitle>Writing</SectionTitle>
       <div className="h-4" />
       {posts.map((post) => (
-        <Link
+        <a
           key={post.slug}
-          href={`/blog/${post.slug}`}
+          href={post.url}
           className="group flex items-center gap-4 border-t border-line py-4 last:border-b"
         >
           {post.thumbnail ? (
@@ -151,7 +151,7 @@ async function Writing() {
           >
             <ArrowRight className="size-4" strokeWidth={1.5} />
           </span>
-        </Link>
+        </a>
       ))}
     </section>
   );
