@@ -25,6 +25,8 @@ export type Product = {
 	screens: string[];
 	github?: string;
 	live?: string;
+	/** The main button on the product page, when the product can be tried. */
+	action?: string;
 };
 
 export const PRODUCTS: Product[] = [
@@ -69,6 +71,7 @@ export const PRODUCTS: Product[] = [
 		],
 		github: "https://github.com/rabtx/grid",
 		live: "https://grid.rabtx.dev",
+		action: "Try Grid",
 	},
 	{
 		name: "Synone",
@@ -171,6 +174,7 @@ export const PRODUCTS: Product[] = [
 		screens: ["/projects/starter.webp"],
 		github: "https://github.com/rabtx/starter",
 		live: "https://starter-two-henna.vercel.app",
+		action: "Open the live demo",
 	},
 ];
 

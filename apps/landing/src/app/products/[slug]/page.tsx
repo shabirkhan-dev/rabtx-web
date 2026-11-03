@@ -97,7 +97,7 @@ export default async function ProductPage(props: PageProps<"/products/[slug]">) 
 							<div className="flex flex-wrap gap-2">
 								{product.live && (
 									<a href={product.live} target="_blank" rel="noreferrer" className={`${pill} bg-ink text-inv`}>
-										{ownSite ? `Visit ${new URL(ownSite).host}` : "Live demo"}
+										{product.action ?? (ownSite ? `Visit ${new URL(ownSite).host}` : "Live demo")}
 										<ArrowIcon />
 									</a>
 								)}
@@ -113,6 +113,10 @@ export default async function ProductPage(props: PageProps<"/products/[slug]">) 
 										<ArrowIcon />
 									</a>
 								)}
+								<Link href="/contact" className={`${pill} border border-line`}>
+									Talk to us
+									<ArrowIcon />
+								</Link>
 							</div>
 						)}
 					</header>
@@ -166,6 +170,19 @@ export default async function ProductPage(props: PageProps<"/products/[slug]">) 
 							</a>
 						</aside>
 					)}
+
+					<aside className="mt-14 flex flex-col gap-4 rounded-[20px] border border-line bg-surface p-6 sm:flex-row sm:items-center sm:justify-between">
+						<div>
+							<p className="text-[17px] font-semibold tracking-[-0.01em]">Want something like {product.name} built for you?</p>
+							<p className="mt-1 text-[15px] leading-6 text-muted">
+								RabtX designs, builds and runs AI-native products end to end.
+							</p>
+						</div>
+						<Link href="/contact" className={`${pill} shrink-0 bg-ink text-inv`}>
+							Start a project
+							<ArrowIcon />
+						</Link>
+					</aside>
 
 					{posts.length > 0 && (
 						<section className="mt-14">

@@ -15,30 +15,33 @@ export function LineGrid({ cols, rows, children }: { cols: 2 | 3; rows: number; 
 	const xs = Array.from({ length: cols + 1 }, (_, i) => (i / cols) * 100);
 	const ys = Array.from({ length: rows + 1 }, (_, i) => (i / rows) * 100);
 	return (
-		<div className="relative mx-4 max-w-[1280px] border-t border-line sm:mx-20 xl:mx-auto">
-			{xs.map((x) => (
-				<span key={`v${x}`} className={`absolute -inset-y-10 hidden w-px bg-line ${l.show}`} style={{ left: `${x}%` }} />
-			))}
-			{ys.map((y) => (
-				<span key={`h${y}`} className={`absolute -inset-x-10 hidden h-px bg-line ${l.show}`} style={{ top: `${y}%` }} />
-			))}
-			{xs.flatMap((x) =>
-				ys.map((y) => (
-					<span
-						key={`m${x}-${y}`}
-						className={`absolute hidden size-[7px] -translate-x-1/2 -translate-y-1/2 rounded-[2px] border border-line bg-bg ${l.show}`}
-						style={{ left: `${x}%`, top: `${y}%` }}
-					/>
-				)),
-			)}
-			<div className={`grid ${l.grid}`}>
-				{Array.isArray(children)
-					? children.map((c, i) => (
-							<div key={i} className={`border-b border-line ${l.flat}`}>
-								{c}
-							</div>
-						))
-					: children}
+		// The hairlines run 40px past the grid; clip them at the screen edge so the page never scrolls sideways.
+		<div className="overflow-x-clip">
+			<div className="relative mx-4 max-w-[1280px] border-t border-line sm:mx-20 xl:mx-auto">
+				{xs.map((x) => (
+					<span key={`v${x}`} className={`absolute -inset-y-10 hidden w-px bg-line ${l.show}`} style={{ left: `${x}%` }} />
+				))}
+				{ys.map((y) => (
+					<span key={`h${y}`} className={`absolute -inset-x-10 hidden h-px bg-line ${l.show}`} style={{ top: `${y}%` }} />
+				))}
+				{xs.flatMap((x) =>
+					ys.map((y) => (
+						<span
+							key={`m${x}-${y}`}
+							className={`absolute hidden size-[7px] -translate-x-1/2 -translate-y-1/2 rounded-[2px] border border-line bg-bg ${l.show}`}
+							style={{ left: `${x}%`, top: `${y}%` }}
+						/>
+					)),
+				)}
+				<div className={`grid ${l.grid}`}>
+					{Array.isArray(children)
+						? children.map((c, i) => (
+								<div key={i} className={`border-b border-line ${l.flat}`}>
+									{c}
+								</div>
+							))
+						: children}
+				</div>
 			</div>
 		</div>
 	);

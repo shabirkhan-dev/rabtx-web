@@ -70,16 +70,21 @@ export function ProjectDialog({ ref, product }: { ref: Ref<HTMLDialogElement>; p
 						</dl>
 
 						<div className="flex flex-wrap gap-2">
-							{product.github && (
-								<a href={product.github} target="_blank" rel="noreferrer" className={`${pill} bg-ink text-inv`}>
-									<GithubIcon />
-									View on GitHub
+							{product.live && (
+								<a href={product.live} target="_blank" rel="noreferrer" className={`${pill} bg-ink text-inv`}>
+									Live site
 									<ArrowIcon />
 								</a>
 							)}
-							{product.live && (
-								<a href={product.live} target="_blank" rel="noreferrer" className={`${pill} border border-line`}>
-									Live site
+							{product.github && (
+								<a
+									href={product.github}
+									target="_blank"
+									rel="noreferrer"
+									className={`${pill} ${product.live ? "border border-line" : "bg-ink text-inv"}`}
+								>
+									<GithubIcon />
+									View on GitHub
 									<ArrowIcon />
 								</a>
 							)}
