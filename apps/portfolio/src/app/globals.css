@@ -15,6 +15,7 @@
   --chip: #dcdad4;
   --line: #e2e1dc;
   --new: #1f9d55;
+  --mark: rgb(250 204 21 / 0.42);
 }
 
 :root[data-theme="dark"] {
@@ -28,6 +29,7 @@
   --chip: #2e2d2b;
   --line: #2a2927;
   --new: #6fd99a;
+  --mark: rgb(234 179 8 / 0.3);
 }
 
 @theme inline {
@@ -70,4 +72,24 @@ body {
 /* Keep the page still behind an open project dialog. */
 html:has(dialog[open]) {
   overflow: hidden;
+}
+
+/* Hand-drawn intro marks (components/scribble.tsx): each path draws in once. */
+.scribble path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: scribble-draw 0.7s cubic-bezier(0.65, 0, 0.35, 1) var(--delay, 0s) forwards;
+}
+
+@keyframes scribble-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scribble path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
 }

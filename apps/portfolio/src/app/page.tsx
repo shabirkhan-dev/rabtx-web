@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { highlights, links, profile, skills, work } from "@/data/profile";
 import { getPosts } from "@/data/posts";
 import { Highlights } from "@/components/highlights";
+import { Scribble } from "@/components/scribble";
 import { PageColumn, SectionTitle } from "@/components/page-column";
 import { SiteFooter } from "@/components/site-footer";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -31,21 +32,30 @@ function Intro() {
       </div>
       <div className="flex flex-col gap-4 text-sm leading-5 tracking-[-0.0064em] text-muted">
         <p>
-          Based in <span className={strong}>Islamabad</span>, building web and mobile products end
+          Based in{" "}
+          <Scribble kind="marker" delay={0.3}>
+            <span className={strong}>Islamabad</span>
+          </Scribble>
+          , building web and mobile products end
           to end, from the interface and the API to the pipeline that ships them
         </p>
         <p>
           Right now I am leading the frontend of <span className={strong}>Auspira</span> at{" "}
           <span className={strong}>Nexora AI</span>, and building{" "}
-          <a href={highlights[0].live} className={underlined}>
-            Grid
-          </a>
+          <Scribble kind="circle" delay={0.8}>
+            <a href={highlights[0].live} className={strong}>
+              Grid
+            </a>
+          </Scribble>
           , an open-source workspace where people and AI coding agents work on the same project, now
           in public beta
         </p>
         <p>
           The last eight years have moved between freelance work, an AI startup, and leading
-          frontend teams, most recently on the rebuild of an HR platform used by PepsiCo and Intel
+          frontend teams, most recently on the rebuild of an HR platform used by{" "}
+          <Scribble kind="underline" delay={1.3}>
+            <span className={strong}>PepsiCo and Intel</span>
+          </Scribble>
         </p>
         <p>
           I share my work on{" "}
