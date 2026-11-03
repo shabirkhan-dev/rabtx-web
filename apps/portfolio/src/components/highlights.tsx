@@ -67,9 +67,9 @@ export function Highlights() {
   }
 
   return (
-    <section className="flex flex-col gap-6" aria-labelledby="highlights">
+    <section id="highlights" className="flex scroll-mt-16 flex-col gap-6" aria-labelledby="highlights-title">
       <SectionTitle>
-        <span id="highlights">Highlights</span>
+        <span id="highlights-title">Highlights</span>
       </SectionTitle>
       {/* The row runs past the column to the right edge of the screen, as in the design. */}
       <div className="-mr-5 flex snap-x snap-mandatory gap-2.5 overflow-x-auto pr-5 [scrollbar-width:none] md:mr-[calc(275px-50vw)] md:pr-6 [&::-webkit-scrollbar]:hidden">

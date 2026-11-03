@@ -2,7 +2,7 @@
 export function PageColumn({ children }: { children: React.ReactNode }) {
   return (
     <div className="overflow-x-clip">
-      <main className="mx-auto flex w-full max-w-[590px] flex-col px-5 pt-10 pb-10 md:pt-[88px] md:pb-16">
+      <main className="mx-auto flex w-full max-w-[590px] flex-col px-5 pt-10 pb-36 md:pt-[88px] md:pb-40">
         {children}
       </main>
     </div>

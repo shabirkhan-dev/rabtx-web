@@ -2,6 +2,8 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { highlights, links, profile, skills, work } from "@/data/profile";
 import { getPosts } from "@/data/posts";
+import { BottomBar } from "@/components/bottom-bar";
+import { EdgeFade } from "@/components/edge-fade";
 import { Highlights } from "@/components/highlights";
 import { PageColumn, SectionTitle } from "@/components/page-column";
 import { SiteFooter } from "@/components/site-footer";
@@ -10,15 +12,6 @@ import { iconButton } from "@/lib/icon-button";
 
 const strong = "font-medium text-foreground";
 const underlined = `${strong} underline decoration-from-font underline-offset-2`;
-
-/** A highlighter band under a key phrase in the intro; it sweeps in once on load (`.mark` in globals.css). */
-function Mark({ delay, children }: { delay: number; children: React.ReactNode }) {
-  return (
-    <mark className={`mark ${strong}`} style={{ "--delay": `${delay}s` } as React.CSSProperties}>
-      {children}
-    </mark>
-  );
-}
 
 function Intro() {
   return (
@@ -39,26 +32,26 @@ function Intro() {
         <ThemeToggle />
       </div>
       <div className="flex flex-col gap-4 text-sm leading-5 tracking-[-0.0064em] text-muted">
-        <p>
+        <p className="focus-in" style={{ "--delay": "0.15s" } as React.CSSProperties}>
           Based in <span className={strong}>Islamabad</span>, building web and mobile products{" "}
-          <Mark delay={0.3}>end to end</Mark>, from the interface and the API to the pipeline that
+          <span className={strong}>end to end</span>, from the interface and the API to the pipeline that
           ships them
         </p>
-        <p>
+        <p className="focus-in" style={{ "--delay": "0.33s" } as React.CSSProperties}>
           Right now I am leading the frontend of <span className={strong}>Auspira</span> at{" "}
           <span className={strong}>Nexora AI</span>, and building{" "}
-          <a href={highlights[0].live}>
-            <Mark delay={0.6}>Grid</Mark>
+          <a href={highlights[0].live} className={underlined}>
+            Grid
           </a>
           , an open-source workspace where people and AI coding agents work on the same project, now
           in public beta
         </p>
-        <p>
+        <p className="focus-in" style={{ "--delay": "0.51s" } as React.CSSProperties}>
           The last eight years have moved between freelance work, an AI startup, and leading
           frontend teams, most recently on the rebuild of an HR platform used by{" "}
-          <Mark delay={0.9}>PepsiCo and Intel</Mark>
+          <span className={strong}>PepsiCo and Intel</span>
         </p>
-        <p>
+        <p className="focus-in" style={{ "--delay": "0.69s" } as React.CSSProperties}>
           I share my work on{" "}
           <a href={links.github} className={underlined}>
             GitHub
@@ -81,14 +74,14 @@ async function Writing() {
   const posts = await getPosts();
   if (posts.length === 0) return null;
   return (
-    <section id="writing" className="flex scroll-mt-10 flex-col">
+    <section id="writing" className="flex scroll-mt-16 flex-col">
       <SectionTitle>Writing</SectionTitle>
       <div className="h-4" />
       {posts.map((post) => (
         <a
           key={post.slug}
           href={post.url}
-          className="group flex items-center gap-4 border-t border-line py-4 last:border-b"
+          className="reveal group flex items-center gap-4 border-t border-line py-4 last:border-b"
         >
           {post.thumbnail ? (
             <Image
@@ -120,7 +113,7 @@ async function Writing() {
 
 function Work() {
   return (
-    <section className="flex flex-col">
+    <section id="work" className="flex scroll-mt-16 flex-col">
       <SectionTitle>Work</SectionTitle>
       <div className="h-6" />
       <ol className="flex flex-col">
@@ -130,7 +123,7 @@ function Work() {
           return (
             <li
               key={job.company}
-              className="relative grid grid-cols-[20px_1fr] gap-x-3 pb-8 text-sm leading-5 tracking-[-0.0064em] last:pb-0"
+              className="reveal relative grid grid-cols-[20px_1fr] gap-x-3 pb-8 text-sm leading-5 tracking-[-0.0064em] last:pb-0"
             >
               {/* The rail: one dot per role, joined by a hairline down to the next. */}
               {last ? null : (
@@ -169,14 +162,14 @@ function Work() {
 
 function Skills() {
   return (
-    <section className="flex flex-col">
+    <section id="skills" className="flex scroll-mt-16 flex-col">
       <SectionTitle>Skills</SectionTitle>
       <div className="h-4" />
       <dl>
         {skills.map(([area, list]) => (
           <div
             key={area}
-            className="flex flex-col gap-1 border-t border-line py-3.5 text-sm leading-5 tracking-[-0.0064em] last:border-b md:flex-row md:gap-4"
+            className="reveal flex flex-col gap-1 border-t border-line py-3.5 text-sm leading-5 tracking-[-0.0064em] last:border-b md:flex-row md:gap-4"
           >
             <dt className="font-medium text-foreground md:w-[140px] md:shrink-0">{area}</dt>
             <dd className="text-muted">{list}</dd>
@@ -198,6 +191,8 @@ export default function Home() {
         <Writing />
         <SiteFooter />
       </div>
+      <EdgeFade />
+      <BottomBar />
     </PageColumn>
   );
 }
