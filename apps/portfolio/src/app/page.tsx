@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { highlights, links, profile, skills, work } from "@/data/profile";
+import { highlights, links, now, profile, siteUrl, skills, work } from "@/data/profile";
 import { getPosts } from "@/data/posts";
 import { BottomBar } from "@/components/bottom-bar";
 import { EdgeFade } from "@/components/edge-fade";
@@ -40,6 +40,15 @@ function Intro() {
         </div>
         <ThemeToggle />
       </div>
+      <p className="focus-in flex w-fit max-w-full items-center gap-2 rounded-full bg-surface py-1.5 pr-3.5 pl-2.5 text-[13px] leading-4 tracking-[-0.0064em] text-muted">
+        <span className="relative flex size-2 shrink-0" aria-hidden="true">
+          <span className="absolute inset-0 animate-ping rounded-full bg-new opacity-60 motion-reduce:hidden" />
+          <span className="relative size-2 rounded-full bg-new" />
+        </span>
+        <span className="font-medium text-foreground">Now</span>
+        <span className="truncate">{now.text}</span>
+        <span className="hidden shrink-0 font-mono text-[11px] text-faint sm:inline">· {now.updated}</span>
+      </p>
       <div className="flex flex-col gap-4 text-sm leading-5 tracking-[-0.0064em] text-muted">
         <p className="focus-in" style={{ "--delay": "0.15s" } as React.CSSProperties}>
           Based in <span className={strong}>Islamabad</span>, building web and mobile products{" "}
@@ -214,9 +223,29 @@ function Skills() {
   );
 }
 
+/** Person structured data, so search engines can show a profile result. */
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: profile.name,
+  jobTitle: profile.role,
+  description: profile.description,
+  url: siteUrl,
+  image: `${siteUrl}/avatar.png`,
+  email: links.email.replace("mailto:", ""),
+  address: { "@type": "PostalAddress", addressLocality: "Islamabad", addressCountry: "PK" },
+  worksFor: work.filter((job) => job.to === "Now").map((job) => ({ "@type": "Organization", name: job.company })),
+  sameAs: [links.github, links.linkedin, "https://rabtx.dev"],
+  knowsAbout: skills.flatMap(({ items }) => items.map((skill) => skill.name)),
+};
+
 export default function Home() {
   return (
     <PageColumn>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd).replace(/</g, "\\u003c") }}
+      />
       <div className="flex flex-col gap-16 md:gap-[88px]">
         <Intro />
         <Highlights />

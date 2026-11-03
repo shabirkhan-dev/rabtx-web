@@ -36,6 +36,7 @@ export const metadata: Metadata = {
   },
   description: profile.description,
   authors: [{ name: profile.name }],
+  alternates: { canonical: "/" },
   openGraph: {
     title: `${profile.name} — ${profile.role}`,
     description: profile.description,

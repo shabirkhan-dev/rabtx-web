@@ -8,6 +8,12 @@ export const links = {
   cv: "/shabir-khan-cv.pdf",
 };
 
+/** The "Now" line under the name. Update the text and month when the focus changes. */
+export const now = {
+  text: "Shipping Grid's public beta and leading the Auspira frontend",
+  updated: "November 2026",
+};
+
 export const profile = {
   name: "Shabir Khan",
   role: "Senior Full-Stack Engineer",
@@ -58,7 +64,7 @@ export const highlights: Highlight[] = [
       ["Status", "Public beta"],
       ["License", "MIT / Apache-2.0"],
     ],
-    github: "https://github.com/shabirkhan-dev/grid",
+    github: "https://github.com/Rabtx/grid",
     live: "https://grid.rabtx.dev",
   },
   {
@@ -95,7 +101,8 @@ export const highlights: Highlight[] = [
       ["Stack", "Next.js, Expo, NestJS, Bun, Turborepo"],
       ["License", "MIT / Apache-2.0"],
     ],
-    github: "https://github.com/shabirkhan-dev/starter",
+    github: "https://github.com/Rabtx/starter",
+    live: "https://starter-two-henna.vercel.app",
   },
   {
     id: "school-os",
@@ -113,7 +120,7 @@ export const highlights: Highlight[] = [
       ["Stack", "Next.js, Expo, NestJS, PostgreSQL"],
       ["Status", "In development"],
     ],
-    github: "https://github.com/shabirkhan-dev/school-os",
+    github: "https://github.com/Rabtx/school-os",
   },
 ];
 
@@ -205,6 +212,8 @@ export const skills: { area: string; items: Skill[] }[] = [
       { name: "NestJS", icon: "nestjs", hex: "E0234E" },
       { name: "Hono", icon: "hono", hex: "E36002" },
       { name: "Bun", icon: "bun", hex: "FBF0DF" },
+      { name: "Rust", icon: "rust" },
+      { name: "Go", icon: "go", hex: "00ADD8" },
       { name: "Express", icon: "express" },
       { name: "PostgreSQL", icon: "postgresql", hex: "4169E1" },
       { name: "Redis", icon: "redis", hex: "FF4438" },
