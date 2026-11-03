@@ -1,13 +1,12 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { Github } from "@/components/brand-icons";
-import { links, profile, projects, skills, work } from "@/data/profile";
+import { highlights, links, profile, skills, work } from "@/data/profile";
 import { getPosts } from "@/data/posts";
 import { Highlights } from "@/components/highlights";
 import { PageColumn, SectionTitle } from "@/components/page-column";
 import { SiteFooter } from "@/components/site-footer";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { iconButton, iconButtonRaised } from "@/lib/icon-button";
+import { iconButton } from "@/lib/icon-button";
 
 const strong = "font-medium text-foreground";
 const underlined = `${strong} underline decoration-from-font underline-offset-2`;
@@ -38,7 +37,7 @@ function Intro() {
         <p>
           Right now I am leading the frontend of <span className={strong}>Auspira</span> at{" "}
           <span className={strong}>Nexora AI</span>, and building{" "}
-          <a href={projects[0].live} className={underlined}>
+          <a href={highlights[0].live} className={underlined}>
             Grid
           </a>
           , an open-source workspace where people and AI coding agents work on the same project, now
@@ -64,55 +63,6 @@ function Intro() {
         </p>
       </div>
     </header>
-  );
-}
-
-const iconLink = `relative z-10 ${iconButtonRaised}`;
-
-function Projects() {
-  return (
-    <section className="flex flex-col gap-1">
-      <SectionTitle>Projects</SectionTitle>
-      <div className="h-3" />
-      {projects.map((project) => (
-        <div
-          key={project.name}
-          className="group relative flex items-center gap-4 rounded-xl px-2.5 py-3 transition-colors hover-capable:hover:bg-surface"
-        >
-          <div className="flex flex-1 flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <a
-                href={project.live ?? project.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm leading-5 font-medium tracking-[-0.0064em] text-foreground after:absolute after:inset-0 after:rounded-xl"
-              >
-                {project.name}
-              </a>
-              {project.isNew ? (
-                <span className="rounded-full border border-new px-[7px] pb-px font-hand text-[15px] leading-4 text-new">
-                  New
-                </span>
-              ) : null}
-            </div>
-            <p className="max-w-[430px] text-sm leading-5 tracking-[-0.0064em] text-muted">
-              {project.description}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 transition-opacity hover-capable:opacity-0 hover-capable:group-hover:opacity-100 hover-capable:group-focus-within:opacity-100">
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${project.name} on GitHub`}
-              className={iconLink}
-            >
-              <Github className="size-4" strokeWidth={1.5} />
-            </a>
-          </div>
-        </div>
-      ))}
-    </section>
   );
 }
 
@@ -219,7 +169,6 @@ export default function Home() {
       <div className="flex flex-col gap-16 md:gap-[88px]">
         <Intro />
         <Highlights />
-        <Projects />
         <Writing />
         <Work />
         <Skills />

@@ -117,45 +117,6 @@ export const highlights: Highlight[] = [
   },
 ];
 
-export type Project = {
-  name: string;
-  description: string;
-  isNew?: boolean;
-  github: string;
-  live?: string;
-};
-
-export const projects: Project[] = [
-  {
-    name: "Grid",
-    description:
-      "A workspace where people and AI coding agents share one board, threads, terminals and pull requests",
-    isNew: true,
-    github: "https://github.com/shabirkhan-dev/grid",
-    live: "https://grid.rabtx.dev",
-  },
-  {
-    name: "Synone",
-    description:
-      "Your day, training, money, food and faith on one calendar, offline first on your phone",
-    isNew: true,
-    github: "https://github.com/shabirkhan-dev/personal-os",
-  },
-  {
-    name: "Starter",
-    description:
-      "A production monorepo with Next.js, Expo, NestJS and docs, ready on the first day",
-    github: "https://github.com/shabirkhan-dev/starter",
-    live: "https://starter-two-henna.vercel.app",
-  },
-  {
-    name: "School OS",
-    description:
-      "School operations for many schools at once, with QR attendance and alerts to parents",
-    github: "https://github.com/shabirkhan-dev/school-os",
-  },
-];
-
 export type Job = {
   company: string;
   role: string;
