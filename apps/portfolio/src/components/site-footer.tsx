@@ -13,7 +13,7 @@ const social = [
 
 export function SiteFooter() {
   return (
-    <footer className="flex flex-col gap-9 border-t border-line pt-8">
+    <footer className="dotted-t flex flex-col gap-9 pt-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-6">
         <div className="flex flex-1 flex-col gap-3">
           <SectionTitle>Elsewhere</SectionTitle>

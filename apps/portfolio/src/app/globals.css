@@ -34,6 +34,25 @@
   --marker-strength: 0.85;
 }
 
+/* One dotted rule for every divider, the same dots as the Work trail. */
+:root {
+  --dot: radial-gradient(circle, color-mix(in srgb, var(--faint) 60%, transparent) 0.8px, transparent 1.1px);
+}
+
+@utility dotted-t {
+  background-image: var(--dot);
+  background-repeat: repeat-x;
+  background-size: 6px 2px;
+  background-position: 0 0;
+}
+
+@utility dotted-y {
+  background-image: var(--dot), var(--dot);
+  background-repeat: repeat-x;
+  background-size: 6px 2px;
+  background-position: 0 0, 0 100%;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

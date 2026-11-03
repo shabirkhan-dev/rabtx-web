@@ -77,7 +77,7 @@ export function ProjectDialog({ ref, project }: Props) {
               {project.facts.map(([label, value]) => (
                 <div
                   key={label}
-                  className="flex gap-4 border-t border-line py-2.5 last:border-b"
+                  className="dotted-t flex gap-4 py-2.5 last:dotted-y"
                 >
                   <dt className="w-[72px] shrink-0 text-muted md:w-24">{label}</dt>
                   <dd className="text-foreground">{value}</dd>

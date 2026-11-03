@@ -176,12 +176,64 @@ export const work: Job[] = [
   },
 ];
 
-export const skills: [area: string, list: string][] = [
-  [
-    "Frontend",
-    "React 19, Next.js, SolidJS, React Native and Expo, TanStack Query, Zustand, Tailwind CSS, design systems",
-  ],
-  ["Backend & data", "Node.js, NestJS, Hono, Bun, Express, PostgreSQL, Redis, SQLite, Drizzle, Prisma"],
-  ["Delivery", "Docker, GitHub Actions, Azure Pipelines, AWS, Vitest, Biome, Lefthook"],
-  ["AI", "LLM APIs, coding-agent integration (ACP, Claude Code, Codex), RAG, local models"],
+export type Skill = {
+  name: string;
+  /** Simple Icons slug, served from public/skills/{icon}.svg (CC0). */
+  icon?: string;
+  /** Brand colour shown on hover. Very dark brands fall back to the text colour. */
+  hex?: string;
+};
+
+export const skills: { area: string; items: Skill[] }[] = [
+  {
+    area: "Frontend",
+    items: [
+      { name: "React 19", icon: "react", hex: "61DAFB" },
+      { name: "Next.js", icon: "nextdotjs" },
+      { name: "SolidJS", icon: "solid", hex: "4F88C6" },
+      { name: "React Native & Expo", icon: "expo" },
+      { name: "TanStack Query", icon: "reactquery", hex: "FF4154" },
+      { name: "Zustand" },
+      { name: "Tailwind CSS", icon: "tailwindcss", hex: "06B6D4" },
+      { name: "Design systems", icon: "figma", hex: "F24E1E" },
+    ],
+  },
+  {
+    area: "Backend & data",
+    items: [
+      { name: "Node.js", icon: "nodedotjs", hex: "5FA04E" },
+      { name: "NestJS", icon: "nestjs", hex: "E0234E" },
+      { name: "Hono", icon: "hono", hex: "E36002" },
+      { name: "Bun", icon: "bun", hex: "FBF0DF" },
+      { name: "Express", icon: "express" },
+      { name: "PostgreSQL", icon: "postgresql", hex: "4169E1" },
+      { name: "Redis", icon: "redis", hex: "FF4438" },
+      { name: "SQLite", icon: "sqlite", hex: "0F80CC" },
+      { name: "Drizzle", icon: "drizzle", hex: "C5F74F" },
+      { name: "Prisma", icon: "prisma" },
+    ],
+  },
+  {
+    area: "Delivery",
+    items: [
+      { name: "Docker", icon: "docker", hex: "2496ED" },
+      { name: "GitHub Actions", icon: "githubactions", hex: "2088FF" },
+      { name: "Azure Pipelines" },
+      { name: "AWS" },
+      { name: "Vitest", icon: "vitest", hex: "6E9F18" },
+      { name: "Biome", icon: "biome", hex: "60A5FA" },
+      { name: "Lefthook", icon: "lefthook", hex: "FF1E1E" },
+    ],
+  },
+  {
+    area: "AI",
+    items: [
+      { name: "LLM APIs", icon: "anthropic" },
+      { name: "Claude Code", icon: "claude", hex: "D97757" },
+      { name: "Codex" },
+      { name: "ACP agents" },
+      { name: "RAG" },
+      { name: "Local models", icon: "ollama" },
+    ],
+  },
 ];

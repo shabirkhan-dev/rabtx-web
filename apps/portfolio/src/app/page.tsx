@@ -90,7 +90,7 @@ async function Writing() {
         <a
           key={post.slug}
           href={post.url}
-          className="reveal group flex items-center gap-4 border-t border-line py-4 last:border-b"
+          className="reveal group dotted-t flex items-center gap-4 py-4 last:dotted-y"
         >
           {post.thumbnail ? (
             <Image
@@ -175,13 +175,38 @@ function Skills() {
       <SectionTitle>Skills</SectionTitle>
       <div className="h-4" />
       <dl>
-        {skills.map(([area, list]) => (
+        {skills.map(({ area, items }) => (
           <div
             key={area}
-            className="reveal flex flex-col gap-1 border-t border-line py-3.5 text-sm leading-5 tracking-[-0.0064em] last:border-b md:flex-row md:gap-4"
+            className="reveal dotted-t flex flex-col gap-3 py-4 text-sm leading-5 tracking-[-0.0064em] last:dotted-y md:flex-row md:gap-4"
           >
-            <dt className="font-medium text-foreground md:w-[140px] md:shrink-0">{area}</dt>
-            <dd className="text-muted">{list}</dd>
+            <dt className="font-medium text-foreground md:w-[140px] md:shrink-0 md:pt-1">{area}</dt>
+            <dd className="flex flex-wrap gap-1.5">
+              {items.map((skill) => (
+                <span
+                  key={skill.name}
+                  className="group inline-flex h-7 items-center gap-1.5 rounded-full bg-surface px-2.5 text-[13px] leading-4 text-muted transition-colors hover-capable:hover:bg-raised hover-capable:hover:text-foreground"
+                  style={{ "--brand": skill.hex ? `#${skill.hex}` : "var(--foreground)" } as React.CSSProperties}
+                >
+                  {skill.icon ? (
+                    <span
+                      aria-hidden="true"
+                      className="size-3.5 shrink-0 bg-faint transition-colors duration-300 hover-capable:group-hover:bg-(--brand)"
+                      style={{
+                        maskImage: `url(/skills/${skill.icon}.svg)`,
+                        WebkitMaskImage: `url(/skills/${skill.icon}.svg)`,
+                        maskSize: "contain",
+                        maskRepeat: "no-repeat",
+                        maskPosition: "center",
+                      }}
+                    />
+                  ) : (
+                    <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-faint/70" />
+                  )}
+                  {skill.name}
+                </span>
+              ))}
+            </dd>
           </div>
         ))}
       </dl>
