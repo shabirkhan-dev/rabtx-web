@@ -13,6 +13,15 @@ import { iconButton } from "@/lib/icon-button";
 const strong = "font-medium text-foreground";
 const underlined = `${strong} underline decoration-from-font underline-offset-2`;
 
+/** A highlighter stroke over a key phrase; it swipes across once on load (`.marker` in globals.css). */
+function Mark({ delay, children }: { delay: number; children: React.ReactNode }) {
+  return (
+    <mark className={`marker ${strong}`} style={{ "--delay": `${delay}s` } as React.CSSProperties}>
+      {children}
+    </mark>
+  );
+}
+
 function Intro() {
   return (
     <header className="flex flex-col gap-7">
@@ -34,14 +43,14 @@ function Intro() {
       <div className="flex flex-col gap-4 text-sm leading-5 tracking-[-0.0064em] text-muted">
         <p className="focus-in" style={{ "--delay": "0.15s" } as React.CSSProperties}>
           Based in <span className={strong}>Islamabad</span>, building web and mobile products{" "}
-          <span className={strong}>end to end</span>, from the interface and the API to the pipeline that
+          <Mark delay={0.9}>end to end</Mark>, from the interface and the API to the pipeline that
           ships them
         </p>
         <p className="focus-in" style={{ "--delay": "0.33s" } as React.CSSProperties}>
           Right now I am leading the frontend of <span className={strong}>Auspira</span> at{" "}
           <span className={strong}>Nexora AI</span>, and building{" "}
-          <a href={highlights[0].live} className={underlined}>
-            Grid
+          <a href={highlights[0].live}>
+            <Mark delay={1.2}>Grid</Mark>
           </a>
           , an open-source workspace where people and AI coding agents work on the same project, now
           in public beta
@@ -49,7 +58,7 @@ function Intro() {
         <p className="focus-in" style={{ "--delay": "0.51s" } as React.CSSProperties}>
           The last eight years have moved between freelance work, an AI startup, and leading
           frontend teams, most recently on the rebuild of an HR platform used by{" "}
-          <span className={strong}>PepsiCo and Intel</span>
+          <Mark delay={1.5}>PepsiCo and Intel</Mark>
         </p>
         <p className="focus-in" style={{ "--delay": "0.69s" } as React.CSSProperties}>
           I share my work on{" "}
@@ -125,9 +134,9 @@ function Work() {
               key={job.company}
               className="reveal relative grid grid-cols-[20px_1fr] gap-x-3 pb-8 text-sm leading-5 tracking-[-0.0064em] last:pb-0"
             >
-              {/* The rail: one dot per role, joined by a hairline down to the next. */}
+              {/* The rail: one dot per role, joined by a dotted trail down to the next. */}
               {last ? null : (
-                <span className="absolute top-4 -bottom-1 left-[9.5px] w-px bg-line" aria-hidden="true" />
+                <span className="absolute top-4 -bottom-1 left-[9px] w-[2px] bg-[radial-gradient(circle,var(--faint)_0.8px,transparent_1.1px)] bg-size-[2px_6px] bg-repeat-y opacity-55" aria-hidden="true" />
               )}
               <span
                 className={`relative mt-1.5 size-2 justify-self-center rounded-full ${

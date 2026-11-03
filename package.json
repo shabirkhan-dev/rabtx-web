@@ -5,6 +5,8 @@
   "workspaces": {
     "packages": ["apps/*", "packages/*"],
     "catalog": {
+      "@hugeicons/core-free-icons": "4.3.5",
+      "@hugeicons/react": "1.1.10",
       "@tailwindcss/postcss": "^4.3.3",
       "@tailwindcss/turbopack": "^4.3.3",
       "@types/node": "^26.6.6",

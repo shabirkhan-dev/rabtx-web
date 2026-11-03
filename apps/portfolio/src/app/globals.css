@@ -15,6 +15,8 @@
   --chip: #dcdad4;
   --line: #e2e1dc;
   --new: #1f9d55;
+  --marker: 250 204 21;
+  --marker-strength: 1;
 }
 
 :root[data-theme="dark"] {
@@ -28,6 +30,8 @@
   --chip: #2e2d2b;
   --line: #2a2927;
   --new: #6fd99a;
+  --marker: 250 204 21;
+  --marker-strength: 0.85;
 }
 
 @theme inline {
@@ -85,6 +89,34 @@ html:has(dialog[open]) {
   }
 }
 
+/*
+ * Intro marker: a real highlighter pass, with soft ends and a little more ink at the start and
+ * finish, swiping left to right once the paragraph is in focus.
+ */
+.marker {
+  --ink: rgb(var(--marker) / calc(0.5 * var(--marker-strength)));
+  --ink-soft: rgb(var(--marker) / calc(0.28 * var(--marker-strength)));
+  --ink-faint: rgb(var(--marker) / calc(0.14 * var(--marker-strength)));
+  background-color: transparent;
+  background-image:
+    linear-gradient(104deg, transparent 0.9%, var(--ink) 2.4%, var(--ink-soft) 5.8%, var(--ink-faint) 93%, var(--ink) 96%, transparent 98%),
+    linear-gradient(183deg, transparent 0%, var(--ink-faint) 7.9%, transparent 15%);
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  border-radius: 0.8em 0.3em;
+  padding: 0.05em 0.3em;
+  margin: 0 -0.15em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  animation: marker-swipe 0.8s cubic-bezier(0.65, 0, 0.35, 1) var(--delay, 0s) forwards;
+}
+
+@keyframes marker-swipe {
+  to {
+    background-size: 100% 100%;
+  }
+}
+
 /* Rows further down sharpen as they scroll up into view (browsers with scroll timelines). */
 @supports (animation-timeline: view()) {
   .reveal {
@@ -106,5 +138,10 @@ html {
   .focus-in,
   .reveal {
     animation: none;
+  }
+
+  .marker {
+    animation: none;
+    background-size: 100% 100%;
   }
 }
