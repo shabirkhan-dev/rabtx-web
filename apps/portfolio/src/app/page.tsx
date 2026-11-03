@@ -111,29 +111,42 @@ function Work() {
   return (
     <section className="flex flex-col">
       <SectionTitle>Work</SectionTitle>
-      <div className="h-4" />
-      <ol>
-        {work.map((job) => {
+      <div className="h-6" />
+      <ol className="flex flex-col">
+        {work.map((job, i) => {
           const current = job.to === "Now";
+          const last = i === work.length - 1;
           return (
             <li
               key={job.company}
-              className="flex flex-col gap-1.5 border-t border-line py-4 text-sm leading-5 tracking-[-0.0064em] last:border-b md:flex-row md:gap-4"
+              className="relative grid grid-cols-[20px_1fr] gap-x-3 pb-8 text-sm leading-5 tracking-[-0.0064em] last:pb-0"
             >
-              <p className="flex items-center gap-1.5 self-start font-mono text-[11px] leading-5 text-faint md:w-[140px] md:shrink-0">
-                {job.from} – {current ? <span className="text-new">Now</span> : job.to}
-                {current ? <span className="size-1.5 rounded-full bg-new" aria-hidden="true" /> : null}
-              </p>
-              <div className="flex flex-col gap-1">
-                <p>
-                  <span className="font-medium text-foreground">{job.company}</span>
-                  <span className="text-muted">
-                    {" · "}
-                    {job.role}
-                    {job.type ? `, ${job.type.toLowerCase()}` : ""}
-                  </span>
-                </p>
-                <p className="text-muted">{job.summary}</p>
+              {/* The rail: one dot per role, joined by a hairline down to the next. */}
+              {last ? null : (
+                <span className="absolute top-4 -bottom-1 left-[9.5px] w-px bg-line" aria-hidden="true" />
+              )}
+              <span
+                className={`relative mt-1.5 size-2 justify-self-center rounded-full ${
+                  current ? "bg-new ring-4 ring-new/15" : "border border-faint bg-background"
+                }`}
+                aria-hidden="true"
+              />
+              <div className="flex flex-col">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="font-medium text-foreground">{job.company}</span>
+                    {job.type ? (
+                      <span className="rounded-full border border-line px-2 text-[11px] leading-[18px] text-muted">
+                        {job.type}
+                      </span>
+                    ) : null}
+                  </p>
+                  <p className="shrink-0 font-mono text-[11px] leading-5 whitespace-nowrap text-faint">
+                    {job.from} — {current ? <span className="text-new">Now</span> : job.to}
+                  </p>
+                </div>
+                <p className="text-muted">{job.role}</p>
+                <p className="mt-2 max-w-[440px] text-faint">{job.summary}</p>
               </div>
             </li>
           );
@@ -169,9 +182,9 @@ export default function Home() {
       <div className="flex flex-col gap-16 md:gap-[88px]">
         <Intro />
         <Highlights />
-        <Writing />
         <Work />
         <Skills />
+        <Writing />
         <SiteFooter />
       </div>
     </PageColumn>
