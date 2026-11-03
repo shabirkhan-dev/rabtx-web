@@ -15,7 +15,7 @@
   --chip: #dcdad4;
   --line: #e2e1dc;
   --new: #1f9d55;
-  --mark: rgb(250 204 21 / 0.42);
+  --mark: rgb(31 157 85 / 0.2);
 }
 
 :root[data-theme="dark"] {
@@ -29,7 +29,7 @@
   --chip: #2e2d2b;
   --line: #2a2927;
   --new: #6fd99a;
-  --mark: rgb(234 179 8 / 0.3);
+  --mark: rgb(111 217 154 / 0.22);
 }
 
 @theme inline {
@@ -74,22 +74,26 @@ html:has(dialog[open]) {
   overflow: hidden;
 }
 
-/* Hand-drawn intro marks (components/scribble.tsx): each path draws in once. */
-.scribble path {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: scribble-draw 0.7s cubic-bezier(0.65, 0, 0.35, 1) var(--delay, 0s) forwards;
+/* Intro highlights: a crisp band across the lower half of the phrase that sweeps in once. */
+.mark {
+  background-color: transparent;
+  background-image: linear-gradient(var(--mark), var(--mark));
+  background-repeat: no-repeat;
+  background-position: 0 85%;
+  background-size: 0% 0.55em;
+  border-radius: 2px;
+  animation: mark-sweep 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) forwards;
 }
 
-@keyframes scribble-draw {
+@keyframes mark-sweep {
   to {
-    stroke-dashoffset: 0;
+    background-size: 100% 0.55em;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scribble path {
+  .mark {
     animation: none;
-    stroke-dashoffset: 0;
+    background-size: 100% 0.55em;
   }
 }

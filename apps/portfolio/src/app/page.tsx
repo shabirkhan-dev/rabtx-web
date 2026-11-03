@@ -3,7 +3,6 @@ import { ArrowRight } from "lucide-react";
 import { highlights, links, profile, skills, work } from "@/data/profile";
 import { getPosts } from "@/data/posts";
 import { Highlights } from "@/components/highlights";
-import { Scribble } from "@/components/scribble";
 import { PageColumn, SectionTitle } from "@/components/page-column";
 import { SiteFooter } from "@/components/site-footer";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -11,6 +10,15 @@ import { iconButton } from "@/lib/icon-button";
 
 const strong = "font-medium text-foreground";
 const underlined = `${strong} underline decoration-from-font underline-offset-2`;
+
+/** A highlighter band under a key phrase in the intro; it sweeps in once on load (`.mark` in globals.css). */
+function Mark({ delay, children }: { delay: number; children: React.ReactNode }) {
+  return (
+    <mark className={`mark ${strong}`} style={{ "--delay": `${delay}s` } as React.CSSProperties}>
+      {children}
+    </mark>
+  );
+}
 
 function Intro() {
   return (
@@ -32,30 +40,23 @@ function Intro() {
       </div>
       <div className="flex flex-col gap-4 text-sm leading-5 tracking-[-0.0064em] text-muted">
         <p>
-          Based in{" "}
-          <Scribble kind="marker" delay={0.3}>
-            <span className={strong}>Islamabad</span>
-          </Scribble>
-          , building web and mobile products end
-          to end, from the interface and the API to the pipeline that ships them
+          Based in <span className={strong}>Islamabad</span>, building web and mobile products{" "}
+          <Mark delay={0.3}>end to end</Mark>, from the interface and the API to the pipeline that
+          ships them
         </p>
         <p>
           Right now I am leading the frontend of <span className={strong}>Auspira</span> at{" "}
           <span className={strong}>Nexora AI</span>, and building{" "}
-          <Scribble kind="circle" delay={0.8}>
-            <a href={highlights[0].live} className={strong}>
-              Grid
-            </a>
-          </Scribble>
+          <a href={highlights[0].live}>
+            <Mark delay={0.6}>Grid</Mark>
+          </a>
           , an open-source workspace where people and AI coding agents work on the same project, now
           in public beta
         </p>
         <p>
           The last eight years have moved between freelance work, an AI startup, and leading
           frontend teams, most recently on the rebuild of an HR platform used by{" "}
-          <Scribble kind="underline" delay={1.3}>
-            <span className={strong}>PepsiCo and Intel</span>
-          </Scribble>
+          <Mark delay={0.9}>PepsiCo and Intel</Mark>
         </p>
         <p>
           I share my work on{" "}
