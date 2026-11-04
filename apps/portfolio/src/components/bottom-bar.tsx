@@ -8,11 +8,13 @@ import {
   Mail01Icon,
   QuillWrite02Icon,
   StarsIcon,
+  TestTube01Icon,
 } from "@hugeicons/core-free-icons";
 import { links } from "@/data/profile";
 
 const sections: { id: string; label: string; icon: IconSvgElement }[] = [
   { id: "highlights", label: "Highlights", icon: StarsIcon },
+  { id: "lab", label: "Lab", icon: TestTube01Icon },
   { id: "work", label: "Work", icon: Briefcase01Icon },
   { id: "skills", label: "Skills", icon: Layers01Icon },
   { id: "writing", label: "Writing", icon: QuillWrite02Icon },

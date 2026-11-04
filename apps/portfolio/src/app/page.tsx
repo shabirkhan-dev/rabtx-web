@@ -9,6 +9,8 @@ import { PageColumn, SectionTitle } from "@/components/page-column";
 import { SiteFooter } from "@/components/site-footer";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { iconButton } from "@/lib/icon-button";
+import { LabList } from "@/components/lab/lab-list";
+import Link from "next/link";
 
 const strong = "font-medium text-foreground";
 const underlined = `${strong} underline decoration-from-font underline-offset-2`;
@@ -125,6 +127,28 @@ async function Writing() {
           </span>
         </a>
       ))}
+    </section>
+  );
+}
+
+function Lab() {
+  return (
+    <section id="lab" className="flex scroll-mt-16 flex-col">
+      <div className="flex items-end justify-between gap-4">
+        <SectionTitle>Lab</SectionTitle>
+        <Link
+          href="/lab"
+          className="flex items-center gap-1.5 pb-1 text-[13px] leading-4 text-muted transition-colors hover-capable:hover:text-foreground"
+        >
+          All experiments
+          <ArrowRight className="size-3.5" strokeWidth={1.5} />
+        </Link>
+      </div>
+      <p className="mt-2 max-w-[440px] text-sm leading-5 tracking-[-0.0064em] text-muted">
+        Experiments I build to learn something: interface studies, rendering tricks and components
+      </p>
+      <div className="h-5" />
+      <LabList />
     </section>
   );
 }
@@ -249,6 +273,7 @@ export default function Home() {
       <div className="flex flex-col gap-16 md:gap-[88px]">
         <Intro />
         <Highlights />
+        <Lab />
         <Work />
         <Skills />
         <Writing />
