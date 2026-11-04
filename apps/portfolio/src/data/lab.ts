@@ -18,9 +18,26 @@ export type Experiment = {
   date: string;
   /** Where the idea or the original code comes from, when it isn't mine alone. */
   credit?: { name: string; href: string; license: string };
+  /** One short line on how to play with the demo. */
+  hint?: string;
 };
 
 export const experiments: Experiment[] = [
+  {
+    slug: "effort-slider",
+    name: "Effort slider",
+    summary: "A stepped slider for how hard a model thinks, whose last step becomes a night sky",
+    description:
+      "A small card for choosing effort, from Faster to Smarter in named steps. The thumb is a pink brain that glides from stop to stop while the track fills pink to violet, and the step's name changes letter by letter. On the last step the brain flashes blue-violet, rays of specks shoot out and the track becomes a twinkling mosaic. Four more themes swap the picture: a galaxy that collapses into a black hole, a race car, a rocket and a jet.",
+    tags: ["React", "SVG", "Canvas 2D", "Accessibility"],
+    date: "Nov 2026",
+    credit: {
+      name: "Bruno Delorence",
+      href: "https://brunodelorence.com/components/effort-slider",
+      license: "MIT",
+    },
+    hint: "Drag the track or use the arrow keys; each demo hands over at your first touch.",
+  },
   {
     slug: "bot-avatars",
     name: "Bot avatars",
@@ -34,6 +51,7 @@ export const experiments: Experiment[] = [
       href: "https://brunodelorence.com/components/bot-avatars",
       license: "MIT",
     },
+    hint: "Poke one, or move the pointer around them.",
   },
 ];
 

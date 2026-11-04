@@ -1,0 +1,682 @@
+/* The effort slider's themes (themes.ts): the galaxy, formula, missile and jet looks. The brain is
+   effort-slider.module.css alone; nothing here touches it.
+
+   The card says its theme (data-theme), whether the page is dark (data-dark, read by the slider
+   from its own colours) and whether the last step is on (data-sky). Each theme sets its tokens on
+   the card, styles the classes below that the slider adds next to its own, and draws its thumb in
+   its own SVG, whose parts read --pos (0 to 1, where the thumb is) to change step by step: the
+   change follows the thumb's glide, so it is smooth with no transitions of its own. What changes
+   only on the last step sits on a group of its own, with a transition.
+
+   Animations named pace… run faster step by step: the slider sets their playback rate. Inside the
+   SVGs, transform origins are in the drawing's units (its 0 0 is the thumb's middle). */
+
+@property --es-warp {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+/* Tokens. */
+.themed[data-theme='galaxy'] {
+  --fill-from: light-dark(#c9bcff, #2a2070);
+  --fill-to: light-dark(#5a36d4, #9a5cf0);
+  --sky-ink: light-dark(#4527b0, #f2f4ff);
+}
+.themed[data-theme='formula'] {
+  --fill-from: light-dark(#6a6e76, #44474e);
+  --fill-to: light-dark(#2a2c31, #1c1e22);
+  --sky-ink: light-dark(#d0190f, #ff6a5c);
+}
+.themed[data-theme='missile'] {
+  --fill-from: light-dark(#c9cdd4, #3a3d44);
+  --fill-to: light-dark(#ff9b3f, #e0711f);
+  --sky-ink: light-dark(#c0540e, #ffb066);
+}
+.themed[data-theme='jet'] {
+  --fill-from: light-dark(#cfe6ff, #182a55);
+  --fill-to: light-dark(#3a86e2, #3a62c4);
+  --sky-ink: light-dark(#1f6fd1, #a9d2ff);
+}
+/* The slider reads the page's scheme from this colour. */
+.themed[data-theme] {
+  caret-color: light-dark(rgb(0 0 0), rgb(255 255 255));
+}
+
+/* The thumb's drawing: 32 px around its middle, which is 8 px in and 10 px down in the thumb. */
+.icon {
+  position: absolute;
+  left: calc(-8 * var(--u));
+  top: calc(-6 * var(--u));
+  width: calc(32 * var(--u));
+  height: calc(32 * var(--u));
+  overflow: visible;
+  filter: drop-shadow(0 0 calc(0.9 * var(--u)) rgb(0 0 0 / 0.35));
+  pointer-events: none;
+}
+
+/* The fill's two layers, and the payoff's sky and box. */
+.texture,
+.lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.texture {
+  right: calc(-24 * var(--u));
+}
+.lines {
+  right: calc(-24 * var(--u));
+}
+.themed[data-theme] .box {
+  width: calc(var(--rx) * 2 * var(--u));
+  height: calc(var(--ry) * 2 * var(--u));
+  margin: calc(var(--ry) * -1 * var(--u)) 0 0 calc(var(--rx) * -1 * var(--u));
+}
+
+/* ---- Galaxy: a spiral that grows and spins faster, then a black hole (light) or white hole. ---- */
+
+.themed[data-theme='galaxy'] .texture {
+  /* Stars in two layers on one 12 px tile, drifting left. */
+  background:
+    radial-gradient(
+        circle,
+        rgb(255 255 255 / 0.95) 0 calc(0.45 * var(--u)),
+        transparent calc(0.75 * var(--u))
+      )
+      0 calc(3 * var(--u)) / calc(12 * var(--u)) calc(9 * var(--u)),
+    radial-gradient(
+        circle,
+        rgb(255 236 250 / 0.7) 0 calc(0.35 * var(--u)),
+        transparent calc(0.6 * var(--u))
+      )
+      calc(6 * var(--u)) calc(-1 * var(--u)) / calc(12 * var(--u)) calc(7 * var(--u));
+  opacity: calc(0.35 + var(--pos) * 0.65);
+  animation: pace-drift12 9s linear infinite;
+}
+.themed[data-theme='galaxy'] .lines {
+  display: none;
+}
+@keyframes pace-drift12 {
+  to {
+    transform: translateX(calc(-12 * var(--u)));
+  }
+}
+/* On a light page the last step pulls the fill into a funnel towards the hole. */
+.themed[data-theme='galaxy'] .warp {
+  --x: calc((8 + var(--pos) * 180) * var(--u));
+  clip-path: polygon(
+    0 0,
+    50% calc(var(--es-warp) * 20%),
+    var(--x) calc(var(--es-warp) * 42%),
+    var(--x) calc(100% - var(--es-warp) * 42%),
+    50% calc(100% - var(--es-warp) * 20%),
+    0 100%
+  );
+  transition: --es-warp 260ms ease;
+}
+.themed[data-theme='galaxy'][data-sky]:not([data-dark]) .warp {
+  --es-warp: 1;
+  transition: --es-warp 760ms cubic-bezier(0.55, 0, 0.25, 1);
+}
+.themed[data-theme='galaxy'] .sky {
+  background:
+    radial-gradient(
+      circle at calc(188 / 196 * 100%) 50%,
+      #05020c 0 calc(5 * var(--u)),
+      #2a1458 calc(9 * var(--u)),
+      transparent calc(40 * var(--u))
+    ),
+    linear-gradient(90deg, #ddd5ff, #a48ef3 50%, #4a2aa6 80%, #150a33);
+}
+.themed[data-theme='galaxy'][data-dark] .sky {
+  background:
+    radial-gradient(
+      circle at calc(188 / 196 * 100%) 50%,
+      #fff 0 calc(4 * var(--u)),
+      #d4ecff calc(8 * var(--u)),
+      transparent calc(44 * var(--u))
+    ),
+    linear-gradient(90deg, #060a1c, #121a44 50%, #34489a 80%, #9ec2ff);
+}
+.themed[data-theme='galaxy'] .glow {
+  background: radial-gradient(
+    closest-side,
+    rgb(48 24 110 / 0.34),
+    rgb(48 24 110 / 0.14) 55%,
+    transparent
+  );
+}
+.themed[data-theme='galaxy'][data-dark] .glow {
+  background: radial-gradient(
+    closest-side,
+    rgb(225 242 255 / 0.55),
+    rgb(190 220 255 / 0.2) 50%,
+    transparent
+  );
+}
+.themed[data-theme='galaxy'] .flash {
+  background: radial-gradient(
+    closest-side,
+    rgb(20 8 48 / 0.7),
+    rgb(40 18 96 / 0.3) 50%,
+    transparent
+  );
+}
+.themed[data-theme='galaxy'][data-dark] .flash {
+  width: calc(90 * var(--u));
+  height: calc(90 * var(--u));
+  margin: calc(-45 * var(--u)) 0 0 calc(-45 * var(--u));
+  background: radial-gradient(
+    closest-side,
+    #fff,
+    rgb(255 255 255 / 0.7) 35%,
+    rgb(200 230 255 / 0.25) 65%,
+    transparent
+  );
+}
+
+.grow {
+  transform: scale(calc(0.95 + var(--pos) * 0.3));
+}
+.spiral {
+  transition:
+    transform 420ms cubic-bezier(0.6, 0, 0.8, 0.4),
+    opacity 300ms ease 120ms;
+}
+.spin {
+  animation: pace-spin 5s linear infinite;
+}
+@keyframes pace-spin {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+.arm {
+  opacity: calc(0.6 + var(--pos) * 0.4);
+}
+.star {
+  fill: #fff;
+  opacity: calc(var(--pos) * 1.6 - 0.15);
+}
+[data-sky] .spiral {
+  transform: scale(0.12) rotate(-200deg);
+  opacity: 0;
+}
+.blackHole,
+.whiteHole {
+  opacity: 0;
+  transform: scale(0.25);
+  transition:
+    transform 200ms ease,
+    opacity 160ms ease;
+}
+[data-sky]:not([data-dark]) .blackHole,
+[data-sky][data-dark] .whiteHole {
+  opacity: 1;
+  transform: scale(1.12);
+  transition:
+    transform 520ms cubic-bezier(0.3, 1.5, 0.5, 1) 330ms,
+    opacity 200ms ease 330ms;
+}
+.themed[data-theme='galaxy'][data-dark] .blackHole,
+.themed[data-theme='galaxy']:not([data-dark]) .whiteHole {
+  visibility: hidden;
+}
+.lensed,
+.disc,
+.discFront {
+  fill: none;
+  stroke-linecap: round;
+}
+.lensed {
+  stroke-width: 1.25;
+  opacity: 0.85;
+}
+.disc {
+  stroke-width: 1.7;
+  opacity: 0.8;
+}
+.discFront {
+  stroke-width: 2.3;
+  stroke-dasharray: 2.6 0.9;
+  animation: swirl 900ms linear infinite;
+}
+@keyframes swirl {
+  to {
+    stroke-dashoffset: -3.5;
+  }
+}
+.photonRing {
+  fill: none;
+  stroke: #ffe4b5;
+  stroke-width: 0.6;
+}
+.horizon {
+  fill: #06030e;
+}
+.whiteRays {
+  stroke: #fff;
+  stroke-width: 1;
+  stroke-linecap: round;
+  animation: rays 1.4s ease-in-out infinite alternate;
+}
+@keyframes rays {
+  to {
+    transform: scale(1.18) rotate(8deg);
+    opacity: 0.7;
+  }
+}
+.whiteRing {
+  fill: none;
+  stroke: #d6efff;
+  stroke-width: 0.8;
+}
+.whiteCore {
+  fill: #fff;
+}
+
+/* ---- Formula: a racing car, its tarmac and kerbs streaming past, then the overtake. ---- */
+
+.themed[data-theme='formula'] .texture {
+  /* Kerbs at the edges and a dashed line down the middle, one 8 px period, streaming left. */
+  background:
+    repeating-linear-gradient(90deg, #e3241b 0 calc(4 * var(--u)), #f2f2f2 0 calc(8 * var(--u))) 0
+      0 / 100% calc(1.5 * var(--u)) no-repeat,
+    repeating-linear-gradient(90deg, #e3241b 0 calc(4 * var(--u)), #f2f2f2 0 calc(8 * var(--u))) 0
+      100% / 100% calc(1.5 * var(--u)) no-repeat,
+    repeating-linear-gradient(
+        90deg,
+        rgb(255 255 255 / 0.7) 0 calc(4 * var(--u)),
+        transparent 0 calc(8 * var(--u))
+      )
+      0 50% / 100% calc(0.7 * var(--u)) no-repeat;
+  animation: pace-drift8 900ms linear infinite;
+}
+.themed[data-theme='formula'] .lines {
+  /* Speed lines, from the middle steps. */
+  background:
+    linear-gradient(90deg, transparent, rgb(255 255 255 / 0.6)) 0 calc(5 * var(--u)) /
+      calc(14 * var(--u)) calc(0.5 * var(--u)) repeat-x,
+    linear-gradient(90deg, transparent, rgb(255 255 255 / 0.45)) calc(9 * var(--u))
+      calc(13.5 * var(--u)) / calc(24 * var(--u)) calc(0.5 * var(--u)) repeat-x;
+  opacity: calc((var(--pos) - 0.3) * 1.6);
+  animation: pace-drift24 700ms linear infinite;
+}
+@keyframes pace-drift8 {
+  to {
+    transform: translateX(calc(-8 * var(--u)));
+  }
+}
+@keyframes pace-drift24 {
+  to {
+    transform: translateX(calc(-24 * var(--u)));
+  }
+}
+.themed[data-theme='formula'] .sky {
+  background: linear-gradient(90deg, #1f2125, #2a2d32 60%, #3b3f47);
+}
+.themed[data-theme='formula'] .glow {
+  background: radial-gradient(
+    closest-side,
+    rgb(255 70 50 / 0.2),
+    rgb(255 70 50 / 0.08) 55%,
+    transparent
+  );
+}
+.themed[data-theme='formula'] .flash {
+  background: radial-gradient(
+    closest-side,
+    rgb(220 245 255 / 0.85),
+    rgb(160 220 255 / 0.35) 50%,
+    transparent
+  );
+}
+
+.ahead {
+  transition: transform 260ms ease;
+}
+[data-sky] .ahead {
+  transform: translateX(2.4px);
+  transition: transform 420ms cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.speedLines {
+  fill: none;
+  stroke-width: 0.8;
+  stroke-linecap: round;
+  stroke-dasharray: 7 3;
+  opacity: calc((var(--pos) - 0.2) * 1.6);
+  animation: pace-dash 500ms linear infinite;
+}
+@keyframes pace-dash {
+  to {
+    stroke-dashoffset: 10;
+  }
+}
+.chassis {
+  animation: pace-shiver 180ms steps(2) infinite;
+}
+@keyframes pace-shiver {
+  to {
+    transform: translateY(0.25px);
+  }
+}
+.heat {
+  opacity: calc(var(--pos) * 1.3 - 0.25);
+}
+.arms {
+  stroke: #24262a;
+  stroke-width: 0.5;
+}
+.tyres {
+  fill: #141518;
+}
+.frontWing {
+  fill: #23252a;
+}
+.body {
+  stroke: #45100c;
+  stroke-width: 0.45;
+}
+.stripe {
+  stroke: #fff;
+  stroke-width: 0.55;
+  opacity: 0.9;
+}
+.cockpit {
+  fill: #0e0f12;
+}
+.cockpitHalo {
+  fill: none;
+  stroke: #a1a8b2;
+  stroke-width: 0.5;
+}
+.wing {
+  fill: #18191c;
+}
+.flap {
+  fill: #33363b;
+  transform-origin: -11px 0;
+  transition: transform 160ms ease;
+}
+[data-sky] .flap {
+  transform: scaleX(0.3);
+}
+.rainLight {
+  fill: #ff3030;
+  opacity: 0;
+}
+[data-sky] .rainLight {
+  animation: blink 500ms steps(1) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ---- Missile: a rocket whose flame ramps up, on a trail of smoke, then the launch. ---- */
+
+.themed[data-theme='missile'] .texture {
+  /* Puffs of smoke on one 12 px tile, drifting left. */
+  background:
+    radial-gradient(closest-side, rgb(255 255 255 / 0.55), transparent) 0 calc(2 * var(--u)) /
+      calc(12 * var(--u)) calc(9 * var(--u)),
+    radial-gradient(closest-side, rgb(255 255 255 / 0.4), transparent) calc(6 * var(--u))
+      calc(9 * var(--u)) / calc(12 * var(--u)) calc(11 * var(--u));
+  opacity: calc(0.25 + var(--pos) * 0.75);
+  animation: pace-drift12 2.4s linear infinite;
+}
+.themed[data-theme='missile'][data-dark] .texture {
+  filter: brightness(0.55);
+}
+.themed[data-theme='missile'] .lines {
+  display: none;
+}
+.themed[data-theme='missile'] .sky {
+  background: linear-gradient(90deg, #d2d5db, #e7e9ed 55%, #ffd6a3 85%, #fff2dc);
+}
+.themed[data-theme='missile'][data-dark] .sky {
+  background: linear-gradient(90deg, #1e2024, #33363c 55%, #7a4421 85%, #f39a4a);
+}
+.themed[data-theme='missile'] .glow {
+  background: radial-gradient(
+    closest-side,
+    rgb(255 168 60 / 0.38),
+    rgb(255 140 40 / 0.14) 55%,
+    transparent
+  );
+}
+.themed[data-theme='missile'] .flash {
+  background: radial-gradient(
+    closest-side,
+    rgb(255 250 230 / 0.95),
+    rgb(255 200 110 / 0.5) 45%,
+    transparent
+  );
+}
+
+.rocket {
+  transition: transform 260ms ease;
+}
+[data-sky] .rocket {
+  transform: translateY(-1.5px) rotate(-12deg);
+  transition: transform 560ms cubic-bezier(0.25, 1.4, 0.45, 1);
+}
+[data-sky] .shake {
+  animation: shake 90ms steps(2) infinite;
+}
+@keyframes shake {
+  to {
+    transform: translate(0.2px, -0.2px);
+  }
+}
+.wisps {
+  fill: rgb(255 255 255 / 0.9);
+  stroke: rgb(120 128 140 / 0.5);
+  stroke-width: 0.3;
+  opacity: min(calc(var(--pos) * 5), calc((0.5 - var(--pos)) * 4));
+}
+.flameAt {
+  transform: translateX(-11.3px);
+}
+.flame {
+  transform: scale(calc(var(--pos) * 1.15), calc(0.55 + var(--pos) * 0.5));
+}
+.boost {
+  transition: transform 200ms ease;
+}
+[data-sky] .boost {
+  transform: scale(1.55, 1.3);
+  transition: transform 380ms cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+.flicker {
+  animation: pace-flicker 140ms steps(2) infinite;
+}
+@keyframes pace-flicker {
+  to {
+    transform: scale(0.9, 0.94);
+  }
+}
+.flameInner {
+  fill: #fff4cc;
+}
+.diamonds {
+  fill: #fff;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+[data-sky] .diamonds {
+  opacity: 0.95;
+}
+.nozzle {
+  fill: #2f3744;
+}
+.fin {
+  fill: #3d4a60;
+}
+.hull {
+  stroke: #2b3340;
+  stroke-width: 0.45;
+}
+.noseCone {
+  fill: #e4572e;
+}
+.band {
+  stroke: #2b3340;
+  stroke-width: 0.6;
+}
+
+/* ---- Jet: wings that sweep back, an afterburner, then the vapour cone of Mach 1. ---- */
+
+.themed[data-theme='jet'] .texture {
+  /* Wisps of cloud, drifting left. */
+  background:
+    radial-gradient(closest-side, rgb(255 255 255 / 0.5), transparent) 0 calc(3 * var(--u)) /
+      calc(24 * var(--u)) calc(5 * var(--u)),
+    radial-gradient(closest-side, rgb(255 255 255 / 0.35), transparent) calc(12 * var(--u))
+      calc(13 * var(--u)) / calc(24 * var(--u)) calc(4 * var(--u));
+  opacity: calc(0.5 + var(--pos) * 0.5);
+  animation: pace-drift24 4s linear infinite;
+}
+.themed[data-theme='jet'][data-dark] .texture {
+  opacity: calc(0.2 + var(--pos) * 0.3);
+}
+.themed[data-theme='jet'] .lines {
+  /* Two contrails behind the thumb, from the middle steps. */
+  right: 0;
+  background:
+    linear-gradient(rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.9)) 0 calc(50% - 3.4 * var(--u)) /
+      100% calc(0.9 * var(--u)) no-repeat,
+    linear-gradient(rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.9)) 0 calc(50% + 3.4 * var(--u)) /
+      100% calc(0.9 * var(--u)) no-repeat;
+  mask: linear-gradient(90deg, transparent 20%, #000);
+  opacity: calc((var(--pos) - 0.3) * 1.6);
+}
+.themed[data-theme='jet'] .sky {
+  background: linear-gradient(90deg, #8cc0f2, #64a4e8 55%, #b8daff 85%, #f2f8ff);
+}
+.themed[data-theme='jet'][data-dark] .sky {
+  background: linear-gradient(90deg, #07112a, #122858 55%, #3c63c2 85%, #a9c6ff);
+}
+.themed[data-theme='jet'] .glow {
+  background: radial-gradient(
+    closest-side,
+    rgb(90 160 235 / 0.3),
+    rgb(90 160 235 / 0.1) 55%,
+    transparent
+  );
+}
+.themed[data-theme='jet'][data-dark] .glow {
+  background: radial-gradient(
+    closest-side,
+    rgb(205 230 255 / 0.32),
+    rgb(205 230 255 / 0.1) 55%,
+    transparent
+  );
+}
+.themed[data-theme='jet'] .flash {
+  width: calc(80 * var(--u));
+  height: calc(80 * var(--u));
+  margin: calc(-40 * var(--u)) 0 0 calc(-40 * var(--u));
+  background: radial-gradient(
+    closest-side,
+    rgb(255 255 255 / 0.95),
+    rgb(225 240 255 / 0.5) 45%,
+    rgb(150 200 255 / 0.15) 70%,
+    transparent
+  );
+}
+
+.wingUp,
+.wingDown {
+  transform: rotate(calc(var(--pos) * -32deg));
+  transform-origin: 0.6px -1.2px;
+}
+.wingDown {
+  transform: rotate(calc(var(--pos) * 32deg));
+  transform-origin: 0.6px 1.2px;
+}
+.wingSkin,
+.tail {
+  fill: #b9c5d3;
+  stroke: #2a3442;
+  stroke-width: 0.45;
+  stroke-linejoin: round;
+}
+.fuselage {
+  stroke: #2a3442;
+  stroke-width: 0.45;
+}
+.canopy {
+  fill: #2b5a96;
+  stroke: #1a2b44;
+  stroke-width: 0.35;
+}
+.burner {
+  transform: scaleX(calc(max(0, var(--pos) - 0.35) * 1.6));
+  transform-origin: -12px 0;
+}
+.themed[data-theme='jet'] .boost,
+.themed[data-theme='jet'] .flicker {
+  transform-origin: -12px 0;
+}
+.coneAt {
+  opacity: 0;
+  transform: scale(0.55);
+  transform-origin: 7px 0;
+  transition:
+    opacity 160ms ease,
+    transform 200ms ease;
+}
+[data-sky] .coneAt {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 220ms ease 60ms,
+    transform 420ms cubic-bezier(0.15, 1.3, 0.4, 1) 60ms;
+}
+.cone {
+  stroke: light-dark(rgb(70 130 210 / 0.6), rgb(255 255 255 / 0.4));
+  stroke-width: 0.45;
+  transform-origin: 7px 0;
+  animation: cone 160ms steps(2) infinite;
+}
+@keyframes cone {
+  to {
+    transform: scale(1.02, 0.97);
+    opacity: 0.85;
+  }
+}
+
+/* Reduced motion: nothing loops, and the last step's changes land at once. */
+@media (prefers-reduced-motion: reduce) {
+  .texture,
+  .lines,
+  .spin,
+  .discFront,
+  .whiteRays,
+  .speedLines,
+  .chassis,
+  .rainLight,
+  .shake,
+  .flicker,
+  .cone {
+    animation: none !important;
+  }
+  .warp,
+  .spiral,
+  .blackHole,
+  .whiteHole,
+  .ahead,
+  .flap,
+  .rocket,
+  .boost,
+  .diamonds,
+  .coneAt {
+    transition: none !important;
+  }
+  [data-sky] .rainLight {
+    opacity: 1;
+  }
+}
