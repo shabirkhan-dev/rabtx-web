@@ -1,0 +1,572 @@
+/* Bot avatars (bot-avatars.tsx and bot-avatar.tsx): near-black cards at night, pale grey ones by
+   day, each with its scene: a row of avatars, a list of bots, a chat, then the playground (a stage
+   and a panel of controls) and the code for what it shows.
+
+   Colours are the tokens below, light-dark(light, dark) where the two differ: the showcase takes
+   the color-scheme it inherits from the page (light unless the page says otherwise), or the one
+   its colorScheme prop sets (data-color-scheme). The avatars are drawn the same on both.
+
+   Memory. Each avatar's canvas is its own layer, half as large again as its box, and only redraws
+   while on screen; the cards are fixed sizes, so a redraw never lays out the page. */
+
+.root {
+  /* Cards, the playground's panel, and the list's sheet. */
+  --card: #f3f3f4;
+  --panel: #ffffff;
+  --sheet: #ffffff;
+  --ring: rgb(0 0 0 / 0.07);
+  --lift: rgb(0 0 0 / 0.06);
+  /* Words: strong, captions, quiet, field labels, the list's heading, the bot's reply. */
+  --ink: #171717;
+  --caption: #6f6f6f;
+  --quiet: rgb(60 60 66 / 0.73);
+  --label: #767676;
+  --head: #767676;
+  --reply: #4b4b4f;
+  /* Chips, sliders and the question's bubble: resting and chosen. */
+  --chip: rgb(0 0 0 / 0.04);
+  --chip-on: #ffffff;
+  --chip-ink: #6e6e6e;
+  --chip-ink-on: #171717;
+  --chip-edge: rgb(0 0 0 / 0.06);
+  --sep: rgb(0 0 0 / 0.06);
+  --tip: #1f1f1f;
+  --tip-ink: #f2f2f2;
+  --focus: #387bff;
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 936px;
+  margin-inline: auto;
+  container-type: inline-size;
+  color: var(--ink);
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+@supports (color: light-dark(#fff, #000)) {
+  .root {
+    --card: light-dark(#f3f3f4, #171717);
+    --panel: light-dark(#ffffff, #1b1b1b);
+    --sheet: light-dark(#ffffff, #1d1d1d);
+    --ring: light-dark(rgb(0 0 0 / 0.07), rgb(44 47 54 / 0.52));
+    --lift: light-dark(rgb(0 0 0 / 0.06), rgb(0 0 0 / 0.24));
+    --ink: light-dark(#171717, #fbfbfb);
+    --caption: light-dark(#6f6f6f, #808080);
+    --quiet: light-dark(rgb(60 60 66 / 0.73), rgb(202 202 202 / 0.7));
+    --label: light-dark(#767676, #979797);
+    --head: light-dark(#767676, #848484);
+    --reply: light-dark(#4b4b4f, #c0c0c0);
+    --chip: light-dark(rgb(0 0 0 / 0.04), rgb(255 255 255 / 0.04));
+    --chip-on: light-dark(#ffffff, rgb(255 255 255 / 0.08));
+    --chip-ink: light-dark(#6e6e6e, #b1b1b1);
+    --chip-ink-on: light-dark(#171717, #fbfbfb);
+    --chip-edge: light-dark(rgb(0 0 0 / 0.06), rgb(255 255 255 / 0.04));
+    --sep: light-dark(rgb(0 0 0 / 0.06), rgb(255 255 255 / 0.04));
+    --tip: light-dark(#1f1f1f, #181818);
+    --tip-ink: light-dark(#f2f2f2, #e3e3e3);
+  }
+}
+.root[data-color-scheme='light'] {
+  color-scheme: light;
+}
+.root[data-color-scheme='dark'] {
+  color-scheme: dark;
+}
+.root[data-color-scheme='system'] {
+  color-scheme: light dark;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* One avatar: its box in the layout, and the canvas half as large again around it. */
+.avatar {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 30%;
+  touch-action: manipulation;
+}
+.avatar[role='button'] {
+  cursor: pointer;
+}
+/* The showcase's focus blue, with a fallback for an avatar used on its own. */
+.avatar:focus-visible {
+  outline: 2px solid var(--focus, #387bff);
+  outline-offset: 2px;
+}
+.canvas {
+  position: absolute;
+  /* More room above than below, for hops and hats. */
+  top: calc(var(--size) * -0.354);
+  left: calc(var(--size) * -0.25);
+  width: calc(var(--size) * 1.5);
+  height: calc(var(--size) * 1.5);
+  pointer-events: none;
+}
+
+/* The row of four. */
+.preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  min-height: 280px;
+  padding: 40px 32px;
+  border-radius: 16px;
+  background: var(--card);
+}
+.team {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px 18px;
+}
+.seat {
+  display: grid;
+  justify-items: center;
+  gap: 15px;
+  width: 126px;
+  margin: 0;
+}
+.caption {
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--caption);
+}
+
+/* The two scenes. */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.cell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  min-height: 314px;
+  padding: 32px 28px;
+  border-radius: 16px;
+  background: var(--card);
+  min-width: 0;
+}
+
+.bots {
+  width: 300px;
+  max-width: 100%;
+  padding: 8px;
+  border-radius: 16px;
+  background: var(--sheet);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+.botsHead {
+  margin: 0;
+  padding: 6px 10px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--head);
+}
+.botsList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.botRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px 8px 10px;
+}
+.botText {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.botName {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+}
+.botStatus {
+  font-size: 12px;
+  line-height: 15px;
+  color: var(--quiet);
+}
+
+.thread {
+  display: grid;
+  gap: 16px;
+  width: 340px;
+  max-width: 100%;
+}
+.bubble {
+  justify-self: end;
+  max-width: 280px;
+  margin: 0;
+  padding: 9px 13px;
+  border-radius: 16px 16px 4px 16px;
+  background: var(--chip);
+  box-shadow: inset 0 0 0 1px var(--ring);
+  font-size: 13px;
+  line-height: 18px;
+}
+.botLine {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.reply {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  padding-top: 1px;
+}
+.replyGhost,
+.replyLive {
+  grid-area: 1 / 1;
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--reply);
+}
+.replyGhost {
+  visibility: hidden;
+}
+.word {
+  animation: wordIn 420ms ease-out both;
+}
+@keyframes wordIn {
+  from {
+    opacity: 0.15;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* Thinking: a band of light sweeps through the words. */
+.thinking {
+  background:
+    linear-gradient(100deg, transparent 0 35%, var(--ink) 45% 55%, transparent 65% 100%) 0 0 / 300%
+      100% no-repeat,
+    var(--quiet);
+  background-clip: text;
+  color: transparent;
+  animation: sweep 1.6s linear infinite;
+}
+@keyframes sweep {
+  from {
+    background-position:
+      100% 0,
+      0 0;
+  }
+  to {
+    background-position:
+      0% 0,
+      0 0;
+  }
+}
+
+/* The playground. */
+.playground {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+.pgTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 14px;
+}
+.pg {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 244px;
+  gap: 12px;
+  height: 880px;
+}
+.stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--card);
+  min-width: 0;
+}
+.play {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  translate: -50% 0;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 40px;
+  background: var(--chip);
+  color: var(--chip-ink-on);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+.play:hover {
+  background: var(--chip-on);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow:
+    0 2px 6px rgb(0 0 0 / 0.05),
+    0 16px 32px -12px var(--lift),
+    inset 0 0 0 1px var(--chip-edge);
+  scrollbar-width: thin;
+}
+.field {
+  display: grid;
+  gap: 8px;
+}
+.fieldLabel {
+  font-size: 13px;
+  line-height: 14px;
+  color: var(--label);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.chip {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 36px;
+  background: var(--chip);
+  color: var(--chip-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+.chip:hover {
+  color: var(--chip-ink-on);
+}
+.chip[aria-checked='true'] {
+  background: var(--chip-on);
+  color: var(--chip-ink-on);
+  box-shadow:
+    0 1px 1px var(--lift),
+    inset 0 0 0 1px var(--chip-edge);
+}
+
+.tuning {
+  display: grid;
+  gap: 14px;
+}
+.tuning > .field + .field {
+  padding-top: 14px;
+  border-top: 1px solid var(--sep);
+}
+.slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--chip);
+  cursor: ew-resize;
+}
+.sliderFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 8px;
+  background: var(--chip-on);
+  box-shadow:
+    0 1px 1px var(--lift),
+    inset 0 0 0 1px var(--chip-edge);
+}
+.sliderName,
+.sliderValue {
+  position: relative;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 14px;
+  color: var(--chip-ink-on);
+}
+.sliderName {
+  padding-left: 12px;
+}
+.sliderValue {
+  padding-right: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: ew-resize;
+}
+.slider:has(.range:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.swatch {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+  cursor: pointer;
+  transition: box-shadow 160ms ease;
+}
+.swatch[aria-pressed='true'] {
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.12),
+    0 0 0 2px var(--panel),
+    0 0 0 3.5px var(--chip-ink-on);
+}
+
+.code {
+  position: relative;
+  border-radius: 16px;
+  background: var(--card);
+}
+.pre {
+  margin: 0;
+  padding: 24px 56px 24px 26px;
+  overflow-x: auto;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 21px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.copy {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--quiet);
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+.copy:hover {
+  background: var(--chip);
+  color: var(--ink);
+}
+.copyIcon {
+  width: 15px;
+  height: 15px;
+}
+.tooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  padding: 8px 12px;
+  border-radius: 40px;
+  background: var(--tip);
+  color: var(--tip-ink);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  box-shadow: 0 1px 16px rgb(0 0 0 / 0.4);
+  opacity: 0;
+  translate: 0 4px;
+  pointer-events: none;
+  transition:
+    opacity 160ms ease,
+    translate 160ms ease;
+}
+.copy:hover .tooltip,
+.copy:focus-visible .tooltip {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.chip:focus-visible,
+.play:focus-visible,
+.swatch:focus-visible,
+.copy:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Narrow: the scenes stack, and the panel goes under the stage at its full height. */
+@container (max-width: 720px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+  .pg {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .stage {
+    height: 420px;
+  }
+  .controls {
+    overflow: visible;
+  }
+}
+@container (max-width: 420px) {
+  .preview {
+    padding: 32px 12px;
+  }
+  .seat {
+    width: 112px;
+  }
+  .cell {
+    padding: 24px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word,
+  .thinking {
+    animation: none;
+  }
+  .thinking {
+    background: none;
+    color: var(--quiet);
+  }
+}
