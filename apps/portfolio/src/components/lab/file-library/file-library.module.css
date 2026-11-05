@@ -1,0 +1,1560 @@
+/* File library (file-library.tsx): a workspace window, icon rail and folder tree on the left,
+   General's folders as tiles over a table of its loose files. Rows drag onto tiles.
+
+   Sizes are px, measured from the reference at 1440 × 900: a 48 px top bar, a 52 px rail, a
+   218 px sidebar, a 47 px header over the main column; tiles 163 × 172 with a 134 × 104 folder
+   picture, 12 apart; table rows 44 px. Under 720 px of library the rail goes, the sidebar becomes
+   a drawer, and the tiles scroll sideways.
+
+   Motion, from the reference's frames (10 a second): the ghost lifts in 160 ms, a tile lights in
+   160 ms and its front tips forward on a slight overshoot (280 ms); dropped, the ghost shrinks
+   into the folder in 200 ms, a paper drops in (460 ms, overshooting), the row folds in 240 ms and
+   the toast comes down in 220 ms. The selection bar rises in 180 ms.
+
+   Colours are the tokens below, light-dark(light, dark) where the two differ: the reference is
+   the dark one; the light one is the same window on paper whites.
+
+   Changed for rabtx: the Name and Size headers sort the table (.sort, at the end). */
+
+.root {
+  --canvas: #e9ebf0;
+  --glow: rgb(80 120 255 / 0.12);
+  --app: #ffffff;
+  --side: #fbfbfc;
+  --table: #ffffff;
+  --line: #e7e7eb;
+  --line-soft: #efeff2;
+  --field: #f4f4f6;
+  --seg: #f0f0f3;
+  --seg-on: #ffffff;
+  --seg-shadow: rgb(0 0 0 / 0.08);
+  --hover: #f6f6f8;
+  --row-current: #f0f0f3;
+  --ink: #17171a;
+  --ink-2: #3c3c43;
+  --muted: #6e6e76;
+  --faint: #a4a4ad;
+  --badge: #efeff2;
+  --button: #ffffff;
+  --tile: #fafafb;
+  --tile-edge: #e9e9ed;
+  --back: #cfd1d8;
+  --glass-top: rgb(255 255 255 / 0.5);
+  --glass-bottom: rgb(236 238 243 / 0.78);
+  --glass-edge: rgb(255 255 255 / 0.95);
+  --glass-shade: rgb(30 35 50 / 0.1);
+  --chip: rgb(255 255 255 / 0.75);
+  --paper: #ffffff;
+  --paper-line: #e3e4e9;
+  --paper-shadow: rgb(20 25 40 / 0.16);
+  --icon-tile: #f4f4f6;
+  --accent: #2f6fe8;
+  --accent-top: #4a86f5;
+  --accent-ink: #ffffff;
+  --accent-glow: rgb(47 111 232 / 0.32);
+  --accent-soft: rgb(47 111 232 / 0.08);
+  --accent-text: #2362d6;
+  --ring: #2f6fe8;
+  --green: #21a35e;
+  --pop: #ffffff;
+  --shadow: rgb(20 25 40 / 0.14);
+  --shadow-deep: rgb(20 25 40 / 0.22);
+  --scrim: rgb(20 22 30 / 0.32);
+  --avatar-ring: #ffffff;
+  /* The same on both schemes: each file type, and the people's pastels. */
+  --pdf: #e5484d;
+  --doc: #3e7bfa;
+  --sheet: #26a269;
+  --slides: #ef8a2a;
+  --image: #9b5cf0;
+  --avatar-ink: #1b1b1f;
+  --pointer: #1c1c1e;
+  --pointer-edge: #fff;
+  --pointer-shadow: rgb(0 0 0 / 0.3);
+  --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+  container: fl / inline-size;
+  width: 100%;
+  min-width: 0;
+  padding: clamp(8px, 2.6cqi, 28px);
+  overflow: hidden;
+  overflow: clip;
+  border-radius: 18px;
+  background: radial-gradient(60% 40% at 55% 0%, var(--glow), transparent 70%), var(--canvas);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+@supports (color: light-dark(#fff, #000)) {
+  .root {
+    --canvas: light-dark(#e9ebf0, #09090b);
+    --glow: light-dark(rgb(80 120 255 / 0.12), rgb(60 80 230 / 0.2));
+    --app: light-dark(#ffffff, #0c0b0e);
+    --side: light-dark(#fbfbfc, #0f0f11);
+    --table: light-dark(#ffffff, #101012);
+    --line: light-dark(#e7e7eb, #1d1d20);
+    --line-soft: light-dark(#efeff2, #18181b);
+    --field: light-dark(#f4f4f6, #19191c);
+    --seg: light-dark(#f0f0f3, #141416);
+    --seg-on: light-dark(#ffffff, #242328);
+    --seg-shadow: light-dark(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.3));
+    --hover: light-dark(#f6f6f8, #151518);
+    --row-current: light-dark(#f0f0f3, #1a1a1d);
+    --ink: light-dark(#17171a, #ededf0);
+    --ink-2: light-dark(#3c3c43, #c7c7cd);
+    --muted: light-dark(#6e6e76, #8c8c93);
+    --faint: light-dark(#a4a4ad, #55555c);
+    --badge: light-dark(#efeff2, #222225);
+    --button: light-dark(#ffffff, #1c1c1f);
+    --tile: light-dark(#fafafb, #0f0f11);
+    --tile-edge: light-dark(#e9e9ed, #1f1f22);
+    --back: light-dark(#cfd1d8, #2b2a30);
+    --glass-top: light-dark(rgb(255 255 255 / 0.5), rgb(84 83 92 / 0.55));
+    --glass-bottom: light-dark(rgb(236 238 243 / 0.78), rgb(30 30 35 / 0.86));
+    --glass-edge: light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.14));
+    --glass-shade: light-dark(rgb(30 35 50 / 0.1), rgb(0 0 0 / 0.35));
+    --chip: light-dark(rgb(255 255 255 / 0.75), rgb(0 0 0 / 0.32));
+    --paper: light-dark(#ffffff, #f4f4f5);
+    --paper-line: light-dark(#e3e4e9, #dcdce1);
+    --paper-shadow: light-dark(rgb(20 25 40 / 0.16), rgb(0 0 0 / 0.4));
+    --icon-tile: light-dark(#f4f4f6, #1b1a1e);
+    --accent: light-dark(#2f6fe8, #3f7cf0);
+    --accent-top: light-dark(#4a86f5, #6a9bf7);
+    --accent-glow: light-dark(rgb(47 111 232 / 0.32), rgb(63 124 240 / 0.5));
+    --accent-soft: light-dark(rgb(47 111 232 / 0.08), rgb(63 124 240 / 0.13));
+    --accent-text: light-dark(#2362d6, #7ea7f8);
+    --ring: light-dark(#2f6fe8, #4f88f2);
+    --green: light-dark(#21a35e, #34c27a);
+    --pop: light-dark(#ffffff, #19191c);
+    --shadow: light-dark(rgb(20 25 40 / 0.14), rgb(0 0 0 / 0.5));
+    --shadow-deep: light-dark(rgb(20 25 40 / 0.22), rgb(0 0 0 / 0.7));
+    --scrim: light-dark(rgb(20 22 30 / 0.32), rgb(0 0 0 / 0.55));
+    --avatar-ring: light-dark(#ffffff, #0c0b0e);
+  }
+}
+.root[data-color-scheme='light'] {
+  color-scheme: light;
+}
+.root[data-color-scheme='dark'] {
+  color-scheme: dark;
+}
+.root[data-color-scheme='system'] {
+  color-scheme: light dark;
+}
+
+:where(.root) :where(button, input) {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+:where(.root) :where(button) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+:where(.root) :where(ul, p, h2, h3) {
+  margin: 0;
+  padding: 0;
+}
+:where(.root) :where(ul) {
+  list-style: none;
+}
+:where(.root) :focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.root[data-dragging],
+.root[data-dragging] * {
+  cursor: grabbing !important;
+}
+
+/* The window. */
+.window {
+  display: grid;
+  grid-template-rows: 48px minmax(0, 1fr);
+  height: 868px;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--app);
+  box-shadow: 0 24px 60px -24px var(--shadow-deep);
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-left: 13px;
+  border-bottom: 1px solid var(--line);
+}
+.logo {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--ink);
+  color: var(--app);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+.logo svg {
+  width: 14px;
+  height: 14px;
+}
+.workspace {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 12.5px;
+}
+.workspace svg {
+  color: var(--muted);
+}
+.workspaceSquare {
+  width: 16px;
+  height: 16px;
+  border-radius: 4.5px;
+  background: linear-gradient(135deg, #ff9c76, #ff6e8a);
+}
+
+.body {
+  position: relative;
+  display: grid;
+  grid-template-columns: 52px 218px minmax(0, 1fr);
+  min-height: 0;
+}
+
+/* The icon rail: decoration, the section this view is in marked. */
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding-top: 13px;
+  border-right: 1px solid var(--line);
+}
+.railIcon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--muted);
+}
+.railIcon[data-current] {
+  background: var(--row-current);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink);
+}
+
+/* The sidebar: the library's tree. */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0 11px;
+  border-right: 1px solid var(--line);
+  background: var(--side);
+}
+.sideHead {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 4px 0 7px;
+}
+.sideTitle {
+  font-size: 13px;
+  font-weight: 600;
+}
+.sideTools {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+  color: var(--muted);
+}
+.ghostButton {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  color: var(--muted);
+}
+button.ghostButton:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 4px 0 9px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--field);
+  color: var(--muted);
+}
+.search:focus-within {
+  border-color: var(--ring);
+}
+.search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--ink);
+  font-size: 12.5px;
+}
+.search input::placeholder {
+  color: var(--muted);
+}
+.search input::-webkit-search-cancel-button {
+  display: none;
+}
+.search kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--muted);
+  font: 500 10px/1.4 var(--sans);
+}
+.segmented {
+  display: flex;
+  gap: 2px;
+  height: 26px;
+  margin-top: 13px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--seg);
+}
+.segment {
+  flex: 1;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  transition:
+    background-color 0.16s,
+    color 0.16s;
+}
+.segment[aria-selected='true'] {
+  background: var(--seg-on);
+  box-shadow: 0 1px 2px var(--seg-shadow);
+  color: var(--ink);
+}
+
+.tree {
+  margin-top: 14px;
+}
+.treeRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: 28px;
+  padding: 0 7px 0 8px;
+  border-radius: 7px;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  text-align: left;
+  transition:
+    background-color 0.25s,
+    box-shadow 0.16s;
+}
+.treeRow svg {
+  flex: none;
+  color: var(--muted);
+}
+.treeRow[data-current] {
+  background: var(--row-current);
+  color: var(--ink);
+}
+.treeRow[data-current] svg {
+  color: var(--ink-2);
+}
+.treeName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.badge {
+  min-width: 20px;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--badge);
+  color: var(--muted);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.subtree {
+  position: relative;
+  margin: 0 0 0 17px;
+}
+/* The guide down the sub-folders, with an elbow into each. */
+.subtree::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 14px;
+  left: -4px;
+  width: 1px;
+  background: var(--line);
+}
+.subtree .treeRow::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 13px;
+  width: 6px;
+  height: 1px;
+  background: var(--line);
+}
+.treeRow[data-over],
+.treeRow[data-flash] {
+  background: var(--accent-soft);
+}
+.treeRow[data-over] {
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+.treeRow[data-flash] .badge {
+  color: var(--accent-text);
+}
+
+/* The main column: its header, the toast, the scrolling content and the bar at its foot. */
+.main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.mainHead {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  height: 47px;
+  padding: 0 14px 0 20px;
+  border-bottom: 1px solid var(--line);
+}
+.mainHead > .ghostButton {
+  margin-left: -8px;
+}
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-size: 12.5px;
+}
+.crumbRoot {
+  color: var(--muted);
+}
+.crumbSlash {
+  color: var(--faint);
+}
+.crumbHere {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+.crumbHere svg {
+  color: var(--muted);
+}
+.headTools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.people {
+  display: flex;
+  margin-right: 4px;
+}
+.people .headAvatar {
+  width: 20px;
+  height: 20px;
+  font-size: 7.5px;
+  box-shadow: 0 0 0 2px var(--avatar-ring);
+}
+.people .headAvatar + .headAvatar {
+  margin-left: -4px;
+}
+.button,
+.primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.button {
+  border: 1px solid var(--line);
+  background: var(--button);
+  color: var(--ink);
+}
+.button:hover {
+  background: var(--hover);
+}
+.button svg {
+  color: var(--muted);
+}
+.primary {
+  background: linear-gradient(var(--accent-top), var(--accent));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    0 0 0 1px var(--accent),
+    0 6px 16px -6px var(--accent-glow);
+  color: var(--accent-ink);
+}
+.primary:hover {
+  filter: brightness(1.06);
+}
+
+/* The toast: under the header, at the right. */
+.toastSlot {
+  position: absolute;
+  top: 59px;
+  right: 20px;
+  z-index: 5;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  height: 32px;
+  padding: 0 4px 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--pop);
+  box-shadow: 0 10px 26px -10px var(--shadow-deep);
+  font-size: 12px;
+  pointer-events: auto;
+  animation: toastIn 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.toast:not(:has(button)) {
+  padding-right: 10px;
+}
+.toastCheck {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+}
+.toastText {
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.toastText b {
+  color: var(--ink);
+  font-weight: 500;
+}
+.toastUndo {
+  flex: none;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 7px;
+  background: var(--badge);
+  color: var(--ink);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.toastUndo:hover {
+  background: var(--line);
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+.scroll {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 18px 20px 20px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.section {
+  flex: none;
+}
+.section + .section {
+  margin-top: 28px;
+}
+.heading {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-bottom: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.headingCount {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* The tiles. The strip scrolls sideways when they don't fit; its padding leaves room for the
+   ring's glow and the upload pill under a tile, and the negative margin takes that room back. */
+.tiles {
+  display: grid;
+  grid-auto-columns: 163px;
+  grid-auto-flow: column;
+  justify-content: start;
+  gap: 12px;
+  margin: -10px -10px -46px;
+  padding: 10px 10px 46px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-padding-inline: 10px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.tiles::-webkit-scrollbar {
+  display: none;
+}
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 172px;
+  padding-top: 17px;
+  border: 1px solid var(--tile-edge);
+  border-radius: 14px;
+  background: var(--tile);
+  scroll-snap-align: start;
+  transition:
+    border-color 0.16s,
+    box-shadow 0.16s;
+}
+.tile[data-over] {
+  border-color: var(--ring);
+  box-shadow:
+    0 0 0 1px var(--ring),
+    0 0 24px -2px var(--accent-glow);
+}
+.tileName {
+  margin-top: 13px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.tileCount {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.4s;
+}
+.tile[data-flash] .tileCount {
+  color: var(--accent-text);
+  transition-duration: 0.1s;
+}
+.uploadPill {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: linear-gradient(var(--accent-top), var(--accent));
+  box-shadow: 0 6px 18px -6px var(--accent-glow);
+  color: var(--accent-ink);
+  font-size: 11.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -4px) scale(0.96);
+  transition:
+    opacity 0.16s,
+    transform 0.16s;
+  pointer-events: none;
+}
+.tile[data-over='upload'] .uploadPill {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* The folder's picture (folder-art.tsx). */
+.art {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 134px;
+  height: 104px;
+  perspective: 420px;
+}
+.back {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: var(--back);
+}
+.papers {
+  position: absolute;
+  top: 9px;
+  left: 18px;
+  width: 98px;
+  height: 64px;
+  transition: transform 0.28s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.tile[data-over] .papers {
+  transform: translateY(-6px);
+}
+.paper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--paper);
+  box-shadow:
+    0 1px 2px var(--paper-shadow),
+    0 0 0 0.5px rgb(0 0 0 / 0.06);
+  transform: translate(var(--x), var(--y)) rotate(var(--r));
+}
+.paper[data-kind='image'] {
+  background:
+    radial-gradient(80% 70% at 75% 20%, rgb(255 255 255 / 0.35), transparent 60%),
+    linear-gradient(140deg, hsl(var(--h1) 90% 62%), hsl(var(--h2) 92% 55%));
+}
+.paper[data-fresh] {
+  animation: paperIn 0.46s cubic-bezier(0.22, 1.25, 0.36, 1) both;
+}
+@keyframes paperIn {
+  from {
+    opacity: 0;
+    transform: translate(var(--x), calc(var(--y) - 34px)) rotate(calc(var(--r) - 6deg)) scale(0.82);
+  }
+  40% {
+    opacity: 1;
+  }
+}
+.paperSquare {
+  position: absolute;
+  top: 9px;
+  left: 10px;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: var(--doc);
+}
+.paper[data-kind='pdf'] .paperSquare {
+  background: var(--pdf);
+}
+.paper[data-kind='sheet'] .paperSquare {
+  background: var(--sheet);
+}
+.paper[data-kind='slides'] .paperSquare {
+  background: var(--slides);
+}
+.paperLine {
+  position: absolute;
+  top: 27px;
+  left: 10px;
+  width: 58%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--paper-line);
+}
+.paperLine + .paperLine {
+  top: 34px;
+  width: 40%;
+}
+.front {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 70px;
+  border-radius: 10px;
+  background: linear-gradient(var(--glass-top), var(--glass-bottom));
+  box-shadow:
+    inset 0 1px 0 var(--glass-edge),
+    inset 0 0 0 0.5px var(--glass-edge),
+    0 -2px 8px -4px var(--glass-shade);
+  -webkit-backdrop-filter: blur(9px) saturate(1.5);
+  backdrop-filter: blur(9px) saturate(1.5);
+  transform-origin: 50% 100%;
+  transition: transform 0.28s cubic-bezier(0.3, 1.35, 0.5, 1);
+}
+.tile[data-over] .front {
+  transform: rotateX(-30deg);
+}
+.members {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+}
+.members .memberAvatar {
+  width: 17px;
+  height: 17px;
+  font-size: 0;
+  box-shadow: 0 0 0 1px var(--glass-shade);
+}
+.members .memberAvatar + .memberAvatar {
+  margin-left: -5px;
+}
+.privateChip {
+  position: absolute;
+  bottom: 9px;
+  left: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 17px;
+  padding: 0 6px 0 5px;
+  border-radius: 5px;
+  background: var(--chip);
+  color: var(--ink-2);
+  font-size: 9.5px;
+  font-weight: 500;
+}
+.progress {
+  position: absolute;
+  right: 34px;
+  bottom: 13px;
+  left: 10px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--chip);
+}
+.progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent-top);
+  transform-origin: 0 50%;
+}
+.doneBadge {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  opacity: 0;
+  transform: scale(0.4);
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+}
+.doneBadge[data-shown] {
+  opacity: 1;
+  transform: none;
+  transition-timing-function: cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+/* Faces: initials on a pastel, the same on both schemes. */
+.avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f7b6cb;
+  color: var(--avatar-ink);
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.avatar[data-person='aw'] {
+  background: #a6dcb9;
+}
+.avatar[data-person='kd'] {
+  background: #b9c8fb;
+}
+.avatar[data-person='sl'] {
+  background: #f6d47e;
+}
+.avatar[data-person='you'] {
+  background: #d6c3f7;
+}
+
+/* The table. Each row sits in a one-track grid so it can fold to 0fr and back. */
+.table {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--table);
+  overflow: hidden;
+  overflow: clip;
+}
+.row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 200px 110px;
+  align-items: center;
+}
+.tableHead .row {
+  height: 34px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+.rowWrap {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows 0.24s cubic-bezier(0.3, 0, 0.2, 1),
+    opacity 0.18s;
+}
+.rowWrap + .rowWrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 14px;
+  left: 14px;
+  height: 1px;
+  background: var(--line-soft);
+}
+.rowWrap[data-leaving] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  pointer-events: none;
+}
+.rowWrap[data-entering] {
+  animation: rowIn 0.3s cubic-bezier(0.3, 0, 0.2, 1);
+}
+@keyframes rowIn {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+.rowWrap > .row {
+  min-height: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition:
+    background-color 0.14s,
+    opacity 0.16s;
+}
+.rowWrap > .row:hover {
+  background: var(--hover);
+}
+.rowWrap > .row[data-selected] {
+  background: var(--accent-soft);
+}
+.rowWrap > .row[data-dragged] {
+  opacity: 0.35;
+}
+.rowWrap > .row > span {
+  height: 44px;
+}
+.cellCheck,
+.cellName,
+.cellOwner,
+.cellSize {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.cellCheck {
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+.cellOwner {
+  gap: 8px;
+}
+.cellSize {
+  padding-right: 16px;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.check {
+  appearance: none;
+  display: block;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  border: 1.5px solid var(--faint);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.14s,
+    background-color 0.14s,
+    border-color 0.14s;
+}
+.check:checked {
+  border-color: var(--accent);
+  background: var(--accent)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='m3.6 7.2 2.3 2.3 4.6-4.8' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 12px no-repeat;
+}
+.check:disabled {
+  cursor: default;
+}
+.row:hover .check,
+.row:focus-within .check,
+.check:checked,
+.check:focus-visible,
+.root[data-selecting] .check,
+.table:hover .tableHead .check {
+  opacity: 1;
+}
+.fileIcon {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--icon-tile);
+  color: var(--doc);
+}
+.fileIcon i {
+  position: absolute;
+  top: 12px;
+  left: 11px;
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  background: currentColor;
+}
+.fileIcon[data-kind='pdf'] {
+  color: var(--pdf);
+}
+.fileIcon[data-kind='sheet'] {
+  color: var(--sheet);
+}
+.fileIcon[data-kind='slides'] {
+  color: var(--slides);
+}
+.fileIcon[data-kind='image'] {
+  color: var(--image);
+}
+.fileName {
+  margin-left: 10px;
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ownerName {
+  overflow: hidden;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.empty {
+  padding: 22px 0 6px;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+/* The selection bar: it sticks to the foot of the scrolling column (or of the screen, when the
+   library is narrow and the page scrolls). */
+.barSlot {
+  position: sticky;
+  bottom: 4px;
+  z-index: 4;
+  flex: none;
+  height: 0;
+  margin-top: auto;
+  pointer-events: none;
+}
+.bar {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 44px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--pop);
+  box-shadow: 0 16px 36px -14px var(--shadow-deep);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, 14px) scale(0.97);
+  transition:
+    opacity 0.18s,
+    transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.bar[data-shown] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+.barCount {
+  padding: 0 10px 0 8px;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.bar .primary {
+  height: 32px;
+  padding: 0 12px;
+}
+.barMenuWrap {
+  position: relative;
+}
+.barButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: var(--ink-2);
+  font-size: 12.5px;
+}
+.barButton:hover,
+.barClose:hover {
+  background: var(--hover);
+}
+.barButton svg,
+.barClose {
+  color: var(--muted);
+}
+.barDivider {
+  width: 1px;
+  height: 18px;
+  margin: 0 2px;
+  background: var(--line);
+}
+.barClose {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+.menu {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
+  min-width: 196px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--pop);
+  box-shadow: 0 16px 36px -12px var(--shadow-deep);
+  animation: toastIn 0.16s ease-out;
+}
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 6px;
+  color: var(--ink);
+  font-size: 12.5px;
+  text-align: left;
+}
+.menuItem svg {
+  color: var(--muted);
+}
+.menuItem:hover {
+  background: var(--badge);
+}
+.menuItem:focus-visible {
+  outline: 0;
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+.menuCount {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The ghost: over everything, following the pointer. */
+.ghostLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+.ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+.ghostTilt {
+  position: relative;
+  display: block;
+  isolation: isolate;
+  transform: rotate(3deg);
+  animation: ghostLift 0.16s ease-out;
+}
+.ghost[data-kind='upload'] .ghostTilt {
+  transform: rotate(-3deg);
+}
+@keyframes ghostLift {
+  from {
+    opacity: 0.4;
+    transform: rotate(0deg) scale(0.97);
+  }
+}
+.ghostChip,
+.ghostBehind {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--pop);
+}
+.ghostChip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+  height: 40px;
+  padding: 0 12px 0 7px;
+  box-shadow:
+    0 14px 30px -10px var(--shadow-deep),
+    0 2px 6px -2px var(--shadow);
+}
+.ghostBehind {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  box-shadow: 0 6px 16px -8px var(--shadow-deep);
+  transform: translate(-7px, 7px) rotate(-4deg);
+}
+.ghostBehind + .ghostBehind {
+  z-index: -2;
+  transform: translate(-13px, 13px) rotate(-8deg);
+}
+.ghostName {
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.ghostSize {
+  margin-left: auto;
+  padding-left: 16px;
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.ghostCount {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--app);
+  color: var(--accent-ink);
+  font-size: 11px;
+  font-weight: 600;
+}
+.ghostPicture {
+  position: relative;
+  display: block;
+  width: 152px;
+  padding: 6px 6px 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--pop);
+  box-shadow: 0 18px 36px -12px var(--shadow-deep);
+}
+.ghostPicture > i {
+  display: block;
+  height: 104px;
+  border-radius: 8px;
+  background:
+    radial-gradient(70% 60% at 78% 18%, rgb(255 255 255 / 0.4), transparent 60%),
+    linear-gradient(140deg, hsl(var(--h1) 88% 56%), hsl(var(--h2) 90% 60%));
+}
+.ghostCaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 3px 8px;
+  font-size: 10.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.ghostCaption span + span {
+  color: var(--muted);
+  font-weight: 400;
+}
+.ghostPlus {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 2px var(--app);
+  color: #fff;
+}
+
+/* The demo pointer, over everything; one of its glyphs shows at a time. */
+.pointerLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+}
+.pointer {
+  width: 22px;
+  height: 22px;
+}
+.hand {
+  visibility: hidden;
+}
+.pointer[data-glyph='hand'] .arrow {
+  visibility: hidden;
+}
+.pointer[data-glyph='hand'] .hand {
+  visibility: visible;
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The sorting headers: Name and Size, each a button that flips the order. The arrow shows on the
+   column the table is sorted by, pointing the way it runs. */
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  margin-left: -6px;
+  padding: 0 6px;
+  border-radius: 6px;
+  color: inherit;
+  font-weight: inherit;
+}
+.sort:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.sort svg {
+  opacity: 0;
+  transition:
+    opacity 0.14s,
+    transform 0.18s;
+}
+.sort:hover svg {
+  opacity: 0.5;
+}
+[aria-sort='ascending'] > .sort,
+[aria-sort='descending'] > .sort {
+  color: var(--ink);
+}
+[aria-sort='ascending'] > .sort svg,
+[aria-sort='descending'] > .sort svg {
+  opacity: 1;
+}
+[aria-sort='ascending'] > .sort svg {
+  transform: rotate(180deg);
+}
+
+/* The sidebar's button hides it on a wide library. */
+@container fl (min-width: 720px) {
+  .sidebar[data-hidden] {
+    display: none;
+  }
+  .body:has(> .sidebar[data-hidden]) {
+    grid-template-columns: 52px minmax(0, 1fr);
+  }
+}
+@container fl (max-width: 1000px) {
+  .row {
+    grid-template-columns: 40px minmax(0, 1fr) 150px 84px;
+  }
+}
+
+/* Narrow: no rail, the sidebar a drawer over the main column, the window as tall as it needs. */
+@container fl (max-width: 719.98px) {
+  .window {
+    height: auto;
+  }
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rail {
+    display: none;
+  }
+  .sidebar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 8;
+    width: min(270px, 84%);
+    padding-bottom: 12px;
+    box-shadow: 12px 0 32px -12px var(--shadow-deep);
+    visibility: hidden;
+    transform: translateX(-104%);
+    transition:
+      transform 0.24s cubic-bezier(0.3, 0, 0.2, 1),
+      visibility 0s 0.24s;
+  }
+  .sidebar[data-drawer] {
+    visibility: visible;
+    transform: none;
+    transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.3, 1);
+  }
+  .scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    background: var(--scrim);
+  }
+  .mainHead {
+    padding: 0 10px 0 16px;
+  }
+  .people {
+    display: none;
+  }
+  .buttonText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .button {
+    width: 28px;
+    justify-content: center;
+    padding: 0;
+  }
+  .toastSlot {
+    right: 12px;
+    left: 12px;
+    display: flex;
+    justify-content: center;
+  }
+  .scroll {
+    padding: 16px 14px 18px;
+    overflow: visible;
+  }
+  .barSlot {
+    bottom: 12px;
+  }
+  .row {
+    grid-template-columns: 34px minmax(0, 1fr) 30px 62px;
+  }
+  .cellCheck {
+    padding-right: 6px;
+  }
+  .cellSize {
+    justify-content: flex-end;
+    padding-right: 12px;
+  }
+  .ownerName,
+  .tableHead .cellOwner {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  /* No hover on a phone: the boxes show, so a tap has somewhere to go. */
+  .check {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rowWrap,
+  .rowWrap > .row,
+  .tile,
+  .papers,
+  .front,
+  .bar,
+  .sidebar,
+  .sidebar[data-drawer],
+  .doneBadge,
+  .uploadPill,
+  .sort svg {
+    transition-duration: 0s;
+  }
+  .rowWrap[data-entering],
+  .paper[data-fresh],
+  .toast,
+  .menu,
+  .ghostTilt {
+    animation: none;
+  }
+  .tile[data-over] .front,
+  .tile[data-over] .papers {
+    transform: none;
+  }
+}

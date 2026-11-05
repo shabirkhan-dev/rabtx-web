@@ -39,6 +39,55 @@ const BRUNO = "Bruno Delorence";
 
 export const experiments: Experiment[] = [
   {
+    slug: "file-library",
+    name: "File library",
+    summary: "Drag a file row onto a folder, and the folder opens to take it",
+    description:
+      "A team's file library: a folder tree, a row of folder tiles and a table of loose files. Drag a row onto a folder and a tilted chip follows the pointer; the folder lights up, its frosted front tips forward and the papers inside rise. Drop it and the chip shrinks into the folder, a new paper drops in as its cover, the row folds away and a toast says what moved, with Undo. Tick rows to drag a stack, or use Move to; files from the desktop upload with a bar on the folder's front.",
+    tags: ["React", "Drag and drop", "Motion", "Accessibility"],
+    date: "Nov 2026",
+    credit: { name: BRUNO, href: "https://brunodelorence.com/components/file-library", license: "MIT" },
+    hint: "Drag a row onto a folder, tick a few to move a stack, or drop a file from your desktop.",
+    files: [
+      "file-library.tsx",
+      "file-library.module.css",
+      "folder-art.tsx",
+      "data.ts",
+      "icons.tsx",
+      "demo-pointer.tsx",
+      "use-autoplay.ts",
+    ],
+    install: "npx shadcn@latest add https://brunodelorence.com/r/file-library.json",
+    usage: `import { FileLibrary } from './file-library';
+import type { Library } from './data';
+
+const library: Library = {
+  workspace: 'Acme',
+  people: { ana: { id: 'ana', name: 'Ana Ruiz', initials: 'AR', color: '#f6d47e' } },
+  folders: [{ id: 'specs', name: 'Specs', count: 0, members: ['ana'], papers: [] }],
+  files: [{ id: 'a1', name: 'Brief.pdf', kind: 'pdf', owner: 'ana', size: '1.2 MB' }],
+};
+
+export function TeamFiles() {
+  return (
+    <FileLibrary
+      library={library}
+      onMove={(files, folder) => console.log(\`\${files.length} → \${folder}\`)}
+    />
+  );
+}`,
+    changes: [
+      "A library prop: the workspace, people, folders and files are data you pass in, not constants in the code (the demo's Halden Studio stays the default)",
+      "Sortable Name and Size columns: A to Z, Z to A, then back to as added, with aria-sort and an announcement",
+      "General's count is counted from the files and folders, so uploads raise it (it was a fixed 34)",
+      "People can carry their own colour, so a library can draw any team, agents included",
+    ],
+    remix: {
+      title: "What a Grid project leaves behind",
+      note: "The same component with Grid's data, through the library prop I added: people and AI agents both add files, sorted into specs, PR diffs, agent runs and releases. Try sorting by size, then drag the run logs into Agent runs.",
+    },
+  },
+  {
     slug: "burn-delete",
     name: "Burn delete",
     summary: "Hold to delete your account, and the page burns away from the button",
