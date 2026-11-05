@@ -532,20 +532,113 @@
   outline-offset: 2px;
 }
 
-/* Narrow: the scenes stack, and the panel goes under the stage at its full height. */
+/* The sidebar's head and its toggle: only on narrow screens. */
+.customize,
+.panelHead {
+  display: none;
+}
+.customize {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 40px;
+  background: var(--chip-on);
+  box-shadow:
+    0 1px 1px var(--lift),
+    inset 0 0 0 1px var(--chip-edge);
+  color: var(--chip-ink-on);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.panelHead {
+  align-items: center;
+  justify-content: space-between;
+}
+.panelTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--chip-ink-on);
+}
+.panelClose {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: -6px -6px -6px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--chip);
+  color: var(--chip-ink-on);
+  cursor: pointer;
+}
+.panelClose svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.customize:focus-visible,
+.panelClose:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Narrow: the scenes stack, and the options become a sidebar that slides over the stage, so the
+   avatar stays in sight while it changes (it moves left to make room). */
 @container (max-width: 720px) {
   .split {
     grid-template-columns: 1fr;
   }
   .pg {
+    position: relative;
     grid-template-columns: 1fr;
-    height: auto;
+    height: 480px;
+    overflow: hidden;
+    border-radius: 16px;
   }
   .stage {
-    height: 420px;
+    height: 100%;
+    transition: padding 280ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .pg[data-panel] .stage {
+    padding-right: min(256px, 64%);
+  }
+  .customize {
+    display: block;
+  }
+  .panelHead {
+    display: flex;
   }
   .controls {
-    overflow: visible;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    z-index: 2;
+    width: min(248px, calc(64% - 8px));
+    padding: 14px;
+    overflow-y: auto;
+    transform: translateX(calc(100% + 16px));
+    visibility: hidden;
+    transition:
+      transform 280ms cubic-bezier(0.32, 0.72, 0, 1),
+      visibility 0s 280ms;
+  }
+  .pg[data-panel] .controls {
+    transform: none;
+    visibility: visible;
+    transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .pg[data-panel] .customize {
+    display: none;
   }
 }
 @container (max-width: 420px) {
@@ -561,6 +654,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .stage,
+  .controls {
+    transition: none !important;
+  }
   .word,
   .thinking {
     animation: none;
