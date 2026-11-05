@@ -1,0 +1,319 @@
+/* Burn delete (burn-delete.tsx): a page that asks to delete your account, its dark pill held
+   down to confirm; then the page burns away from the pill and leaves a black sign-in screen.
+
+   Layers, bottom to top: the page; the burn canvas (the hole, its rim and flames, the dark
+   screen's embers); the dark screen's words and fields, masked to the hole while it grows; the
+   flakes canvas; the demo pointer.
+
+   Sizes. Every length is a number of design units times --k, the px of one unit: the reference
+   layout is 1198 units square, the pill 258 × 66, the heading 50. --k follows the stage's width
+   (a container query unit), from 0.5 to 0.82 px.
+
+   Colours are the tokens below, light-dark(light, dark) where the two differ: the page is white
+   by day and graphite by night, its pill inverted; the screen the burn leaves is black on both.
+   The burn's own colours live in the shader (burn-gl.ts). */
+
+.root {
+  /* The page. */
+  --page: #fbfbfb;
+  --line: rgb(0 0 0 / 0.06);
+  --ink: #141416;
+  --ink-soft: #6b6b70;
+  --pill: #161618;
+  --pill-ink: #fff;
+  --pill-edge: rgb(0 0 0 / 0.12);
+  /* The burnt pill's ink, dark on the heat whatever the scheme. */
+  --heat-ink: #1a0905;
+  /* The smoke the page is left with; read by the script for the shader. */
+  --smoke: #8a8a8e;
+  /* The screen the burn leaves: the same on both schemes. */
+  --gone: #000;
+  --gone-ink: #f4f4f5;
+  --gone-soft: #8d8d93;
+  --field: #18181b;
+  --field-edge: rgb(255 255 255 / 0.06);
+  --field-ink: #f4f4f5;
+  --field-hint: #8a8a90;
+  --cta: #f7f7f8;
+  --cta-ink: #0b0b0c;
+  --focus: #387bff;
+  --pointer: #1c1c1e;
+  --pointer-edge: #fff;
+  --pointer-shadow: rgb(0 0 0 / 0.25);
+  --k: clamp(0.5px, 100cqi / 1300, 0.82px);
+  position: relative;
+  container-type: inline-size;
+  contain: layout paint;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: 460px;
+  max-height: 680px;
+  overflow: hidden;
+  overflow: clip;
+  border-radius: 18px;
+  background: var(--page);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+@supports (color: light-dark(#fff, #000)) {
+  .root {
+    --page: light-dark(#fbfbfb, #1b1b1e);
+    --line: light-dark(rgb(0 0 0 / 0.06), rgb(255 255 255 / 0.07));
+    --ink: light-dark(#141416, #f2f2f3);
+    --ink-soft: light-dark(#6b6b70, #9a9aa0);
+    --pill: light-dark(#161618, #f2f2f3);
+    --pill-ink: light-dark(#fff, #121214);
+    --pill-edge: light-dark(rgb(0 0 0 / 0.12), rgb(255 255 255 / 0.2));
+    --smoke: light-dark(#8a8a8e, #c4c4c8);
+  }
+}
+.root[data-color-scheme='light'] {
+  color-scheme: light;
+}
+.root[data-color-scheme='dark'] {
+  color-scheme: dark;
+}
+.root[data-color-scheme='system'] {
+  color-scheme: light dark;
+}
+
+/* Both screens: their words in a column, centred on the stage. */
+.page,
+.gone {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: calc(560 * var(--k));
+  text-align: center;
+}
+
+/* The page. */
+.byline {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: max(12px, calc(20 * var(--k)));
+  line-height: 1.3;
+}
+.title {
+  margin: calc(14 * var(--k)) 0 0;
+  color: var(--ink);
+  font-size: calc(50 * var(--k));
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.lead {
+  margin: calc(14 * var(--k)) 0 0;
+  color: var(--ink-soft);
+  font-size: max(13px, calc(21 * var(--k)));
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+/* The pill held to delete: dark, and filled from the left with heat while it is held. */
+.hold {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: calc(258 * var(--k));
+  min-height: max(40px, calc(66 * var(--k)));
+  margin-top: calc(36 * var(--k));
+  padding: 0 calc(40 * var(--k));
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: var(--pill);
+  box-shadow: inset 0 0 0 1px var(--pill-edge);
+  color: var(--pill-ink);
+  font: inherit;
+  font-size: max(14px, calc(20 * var(--k)));
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+  transition: transform 160ms ease;
+}
+.hold[data-holding='true'] {
+  transform: scale(0.97);
+}
+.hold:focus-visible,
+.field:focus-visible,
+.cta:focus-visible,
+.restore:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.holdText {
+  position: relative;
+  white-space: nowrap;
+}
+/* The heat: the whole ramp spans the filled part, white-hot at its leading edge. */
+.heat {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(
+    90deg,
+    #4f0904 0%,
+    #9c1a08 28%,
+    #d9420d 55%,
+    #f38a2c 80%,
+    #fcd27a 95%,
+    #fff1c8 100%
+  );
+  background-size: calc(var(--fill, 0) * 100%) 100%;
+  background-repeat: no-repeat;
+  color: var(--heat-ink);
+  /* A pale halo under the dark words, so they read over the darkest red too. */
+  text-shadow:
+    0 0 calc(6 * var(--k)) rgb(255 226 170 / 0.9),
+    0 0 calc(14 * var(--k)) rgb(255 210 150 / 0.7);
+  clip-path: inset(0 calc(100% - var(--fill, 0) * 100%) 0 0);
+  pointer-events: none;
+}
+
+/* The screen the burn leaves. Its words come in through the hole: the script masks it to the
+   hole's middle while it grows. */
+.gone {
+  visibility: hidden;
+}
+.root[data-phase='burning'] .gone,
+.root[data-phase='gone'] .gone,
+.root[data-phase='restoring'] .gone {
+  visibility: visible;
+}
+.signIn {
+  margin: 0;
+  color: var(--gone-ink);
+  font-size: calc(44 * var(--k));
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  outline: none;
+}
+.goneLead {
+  margin: calc(16 * var(--k)) 0 0;
+  color: var(--gone-soft);
+  font-size: max(13px, calc(18 * var(--k)));
+  line-height: 1.35;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, calc(480 * var(--k)));
+  gap: calc(14 * var(--k));
+  margin-top: calc(48 * var(--k));
+}
+.field,
+.cta {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: max(40px, calc(64 * var(--k)));
+  border-radius: 999px;
+  font: inherit;
+  font-size: max(14px, calc(18 * var(--k)));
+  text-align: center;
+}
+.field {
+  padding: 0 calc(24 * var(--k));
+  border: 0;
+  background: var(--field);
+  box-shadow: inset 0 0 0 1px var(--field-edge);
+  color: var(--field-ink);
+}
+.field::placeholder {
+  color: var(--field-hint);
+}
+.cta {
+  border: 0;
+  background: var(--cta);
+  color: var(--cta-ink);
+  font-weight: 500;
+  cursor: pointer;
+}
+.restore {
+  align-self: center;
+  margin-top: calc(34 * var(--k));
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--gone-soft);
+  font: inherit;
+  font-size: max(13px, calc(16 * var(--k)));
+  cursor: pointer;
+}
+.restore:hover {
+  color: var(--gone-ink);
+}
+
+.burn,
+.flakes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Without the shader (reduced motion, or no WebGL): the screens cross-fade in 0.4 s, played by
+   the script with the Web Animations API (the site turns CSS transitions off under reduced
+   motion; a fade this short and soft is what replaces the burn there). */
+.root[data-plain='true'] .gone {
+  background: var(--gone);
+}
+.root[data-plain='true'] .burn,
+.root[data-plain='true'] .flakes {
+  display: none;
+}
+
+/* The demo pointer, over everything; one of its glyphs shows at a time. */
+.pointerLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.pointer {
+  width: clamp(20px, calc(34 * var(--k)), 28px);
+  height: clamp(20px, calc(34 * var(--k)), 28px);
+}
+.hand {
+  visibility: hidden;
+}
+.pointer[data-glyph='hand'] .arrow {
+  visibility: hidden;
+}
+.pointer[data-glyph='hand'] .hand {
+  visibility: visible;
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hold {
+    transition: none;
+  }
+}

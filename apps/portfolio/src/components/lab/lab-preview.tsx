@@ -1,6 +1,7 @@
 "use client";
 
 import { BotAvatar } from "@/components/lab/bot-avatars/bot-avatar";
+import { BurnDelete } from "@/components/lab/burn-delete/burn-delete";
 import { EffortSlider } from "@/components/lab/effort-slider/effort-slider";
 
 /**
@@ -25,6 +26,13 @@ export function LabPreview({ slug }: { slug: string }) {
           help=""
           className="h-full! min-h-0! rounded-none! bg-transparent! shadow-none! [aspect-ratio:auto]!"
         />
+      </div>
+    );
+  }
+  if (slug === "burn-delete") {
+    return (
+      <div className="pointer-events-none h-full w-full" aria-hidden="true" inert>
+        <BurnDelete className="h-full! min-h-0! rounded-none! shadow-none! [aspect-ratio:auto]!" />
       </div>
     );
   }

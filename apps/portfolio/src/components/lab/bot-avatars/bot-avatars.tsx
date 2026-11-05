@@ -1,4 +1,6 @@
 // Copyright (c) 2026 Bruno Delorence. MIT License.
+// Changed for rabtx: on narrow screens the playground's options open as a sidebar over the
+// stage (Customize), instead of a long column under it.
 
 'use client';
 
@@ -261,6 +263,9 @@ function Chat({ still }: { still: boolean }) {
 function Playground() {
   const [s, setS] = useState<Settings>(DEFAULTS);
   const [playing, setPlaying] = useState(false);
+  // On narrow screens the options are a sidebar over the stage, opened by Customize.
+  const [panel, setPanel] = useState(false);
+  const panelId = useId();
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) =>
     setS((now) => ({ ...now, [key]: value }));
 
@@ -293,7 +298,13 @@ function Playground() {
       <h3 id="bot-avatars-playground" className={styles.pgTitle}>
         Playground
       </h3>
-      <div className={styles.pg}>
+      <div
+        className={styles.pg}
+        data-panel={panel || undefined}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape' && panel) setPanel(false);
+        }}
+      >
         <div className={styles.stage} data-part="stage">
           <BotAvatar
             {...props}
@@ -309,8 +320,30 @@ function Playground() {
           >
             {playing ? 'Pause' : 'Play'}
           </button>
+          <button
+            type="button"
+            className={styles.customize}
+            aria-expanded={panel}
+            aria-controls={panelId}
+            onClick={() => setPanel((open) => !open)}
+          >
+            {panel ? 'Done' : 'Customize'}
+          </button>
         </div>
-        <div className={styles.controls} data-part="controls">
+        <div id={panelId} className={styles.controls} data-part="controls">
+          <div className={styles.panelHead}>
+            <span className={styles.panelTitle}>Customize</span>
+            <button
+              type="button"
+              className={styles.panelClose}
+              aria-label="Close options"
+              onClick={() => setPanel(false)}
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M4 4l8 8M12 4l-8 8" />
+              </svg>
+            </button>
+          </div>
           <Chips
             label="Type"
             options={SHAPE_NAMES}

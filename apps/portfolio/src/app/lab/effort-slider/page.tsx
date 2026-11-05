@@ -1,5 +1,6 @@
 import { EffortSlider } from "@/components/lab/effort-slider/effort-slider";
 import { ExperimentPage, experimentMetadata } from "@/components/lab/experiment-page";
+import { RunSettings } from "@/components/lab/remix/run-settings";
 
 export const metadata = experimentMetadata("effort-slider");
 
@@ -58,7 +59,7 @@ const themes = [
 
 export default function EffortSliderPage() {
   return (
-    <ExperimentPage slug="effort-slider">
+    <ExperimentPage slug="effort-slider" remix={<RunSettings />}>
       <div className="flex flex-col gap-3">
         <EffortSlider />
         <ul className="grid gap-3 md:grid-cols-2">
