@@ -3,6 +3,7 @@
 import { BotAvatar } from "@/components/lab/bot-avatars/bot-avatar";
 import { BurnDelete } from "@/components/lab/burn-delete/burn-delete";
 import { EffortSlider } from "@/components/lab/effort-slider/effort-slider";
+import { FolderPreview } from "@/components/lab/remix/folder-preview";
 
 /**
  * The live thumbnail each experiment shows on its card. Decorative and inert: the card is a link,
@@ -29,6 +30,7 @@ export function LabPreview({ slug }: { slug: string }) {
       </div>
     );
   }
+  if (slug === "file-library") return <FolderPreview />;
   if (slug === "burn-delete") {
     return (
       <div className="pointer-events-none h-full w-full" aria-hidden="true" inert>
